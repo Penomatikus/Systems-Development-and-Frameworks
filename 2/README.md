@@ -1,32 +1,31 @@
-# Exercise \#2
+# build-test-vue
 
-Write test for your existing code.
+[![Build Status](https://travis-ci.org/Kaleidostar/build-test-vue.svg?branch=master)](https://travis-ci.org/Kaleidostar/build-test-vue)
 
-This is not exactly test driven development, because you do the implementation
-first and add the automated tests later. Don't worry, we keep the test driven
-development for the upcoming exercises. However, do mutant testing in order to
-double-check if your tests actually fail for a bug in your code.
+## Project setup
+```
+npm install
+```
 
-1. Add a linter to your project, e.g. `eslint` or `prettier`.
-2. Test your components with `jest` and `vue-test-utils`. Here is some
-   inspiration how the tests could be structured:
-   ![Terminal output](./terminal.png)
-3. Setup a build server. If your linter or your tests fail, that should fail the
-   build. Popular choices for open source projects are [Travis CI](https://travis-ci.com/)
-   or [Circle CI](https://circleci.com/)
-4. Integrate your build server status into your repository, i.e. your build
-   server tests each of your pull requests and you can see the result on the
-   pull request.
-   ![Github checks](./build-server-checks.png)
-   You can also add a badge to your `README.md`.
-   ![Build server badge](./build-server-badge.png)
-5. Request a review from @roschaefer
-6. Request a review from a member of another team
-7. Review a pull request of another group. Either "Request Changes" or
-   "Approve". Give suggestions by clicking on the line of code that needs
-   improvement.
-   ![Give code suggestions](./code-suggestions.png)
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
 
+### Compiles and minifies for production
+```
+npm run build
+```
 
-If you copy code from other groups, please give credit to them in your commit
-messages.
+### Run your unit tests
+```
+npm run test:unit
+```
+
+### Lints and fixes files
+```
+npm run lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
