@@ -3,17 +3,17 @@ import ListItem from "@/components/ListItem.vue";
 
 describe("ListItem.vue", () => {
   it("Register is a component", () => {
-  const wrapper = shallowMount(ListItem,{
-  todo: {
-        id: '1',
-	newMessage: ""
+  const wrapper = shallowMount(ListItem, {
+  propsData: { 
+    todo: {
+        id: 1,
+  newMessage: ""
+    }
       }
-});
+}); 
 
-  // checks ListItem is a component.
+expect(wrapper.vm.newMessage).toBe("");
 
-    expect(wrapper.isVueInstance()).toBeTruthy();
-  });
-
+})
 
 });
