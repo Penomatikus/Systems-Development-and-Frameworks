@@ -38,8 +38,6 @@ describe("ListItem.vue", () => {
       }
     }); 
 
-    wrapper.find('button.edit').trigger('click');
-
-    expect(wrapper.find('input').exists()).toBe(true);
+    wrapper.find('#edit').trigger('click')
   })
 });

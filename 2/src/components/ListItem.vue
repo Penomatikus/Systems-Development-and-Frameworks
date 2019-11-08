@@ -3,19 +3,19 @@
 <form id="test">
             <li v-if="editMode == true" >                
                 <input type="text" placeholder="enter new value" v-on:input="updateMessage"> 
-                <button v-on:click="saveMe(todo)" type="button">
+                <button v-on:click="saveMe(todo)" type="button" id="save">
                     Save
                 </button>
-                <button v-on:click="cancelMe" type="button">
+                <button v-on:click="cancelMe" type="button" id="cancel">
                     Cancel
                 </button>
             </li>
             <li v-else >                
                 {{todo.id}}. {{todo.message}} 
-                <button v-on:click="editMe" type="button">
+                <button v-on:click="editMe" type="button" id="edit">
                     Edit
                 </button>
-                <button v-on:click="deleteMe(todo)" type="button">
+                <button v-on:click="deleteMe(todo)" type="button" id="delete">
                     Delete
                 </button>
 
