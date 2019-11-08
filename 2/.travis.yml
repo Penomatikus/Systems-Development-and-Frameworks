@@ -11,3 +11,6 @@ script:
   - npm run test:unit
 after_script:
   - cat ./coverage/lcov.info | coveralls
+branches:
+  only:
+  - build/spammy
