@@ -6,6 +6,7 @@ cache:
     - node_modules
 before_script:
   - cd /home/travis/build/Penomatikus/Systems-Development-and-Frameworks/2
+  - npm install
 script:
   - npm run test:unit
 after_script:
