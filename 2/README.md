@@ -1,6 +1,6 @@
 # build-test-vue
 
-[![Build Status](https://travis-ci.org/Kaleidostar/build-test-vue.svg?branch=master)](https://travis-ci.org/Kaleidostar/build-test-vue)
+[![Build Status](https://travis-ci.com/Penomatikus/Systems-Development-and-Frameworks.svg?branch=build%2Fspammy)](https://travis-ci.com/Penomatikus/Systems-Development-and-Frameworks)
 
 ## Project setup
 ```
