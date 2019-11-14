@@ -1,31 +1,27 @@
-# build-test-vue
+# SDaF EX 3
 
 [![Build Status](https://travis-ci.com/Penomatikus/Systems-Development-and-Frameworks.svg?branch=build%2Fspammy)](https://travis-ci.com/Penomatikus/Systems-Development-and-Frameworks)
 
-## Project setup
-```
-npm install
-```
-
-### Compiles and hot-reloads for development
+## Start Web Server
 ```
 npm run serve
 ```
+Zugriff:
+http://localhost:8080/
 
-### Compiles and minifies for production
-```
-npm run build
-```
 
-### Run your unit tests
+### Start Apollo Server
 ```
-npm run test:unit
+npm run apollo
 ```
+Playground:
+http://localhost:4000/graphql
 
-### Lints and fixes files
-```
-npm run lint
-```
+Api calls:
+http://localhost:4000/meinejson.json
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+### Startpunkte Umsetzung:
+
+https://apollo.vuejs.org/guide/apollo/#apollo-options
+
+https://www.apollographql.com/docs/tutorial/introduction/
