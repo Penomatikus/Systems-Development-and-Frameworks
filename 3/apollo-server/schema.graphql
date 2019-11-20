@@ -1,4 +1,6 @@
-"A scalar type is a primitive type like ID, String, Boolean, or Int."
+scalar JSON
+
+"A scalar type is a primitive types like ID, String, Boolean, or Int."
 type ToDo {
   id: ID!
   message: String!
@@ -13,8 +15,8 @@ type Query {
 
 type Mutation {
   myMutation: String!
-  "Add a message and publish it on 'messages' subscription channel"
-  addMessage(input: MessageInput!): Message!
+  "Add a message and publish it on 'messages'"
+  addTodo(input: ToDoInput!): ToDo!
 }
 
 "Input from user to create a todo"
