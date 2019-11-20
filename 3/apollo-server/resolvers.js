@@ -15,6 +15,7 @@ export default {
       context.pubsub.publish("hey", { mySub: message });
       return message;
     },
+
     addTodo: (root, { id, newMessage }, { db }) => {
       const todo = {
         // id: new Date().getUTCMilliseconds(),
@@ -30,19 +31,20 @@ export default {
       return todo;
     },
 
-    updateTodo: (root, { idd, updateMessage }, { db }) => {
-      const todo = {
-        id: idd,
-        message: updateMessage
-      };
-
-      db.get("todo")
-        .from("todos")
-        .where(id == idd);
-
+    updateTodo: (root, { id, updateMessage }, { db }) => {
+      // const todoUpdate = db.get("todos").find({ id: 0 });
+      // console.log(db.get("todos").value());
+      // console.log(parseInt(id));
+      // console.log(
+      //   db
+      //     .get("todos")
+      //     .find({ id: id })
+      //     .value()
+      // );
+      // console.log(db.get("todos").find({ id: 11 }));
       db.get("todos")
-        .push(todo)
-        .last()
+        .find({ id: id })
+        .assign({ message: updateMessage })
         .write();
       return todo;
     },
