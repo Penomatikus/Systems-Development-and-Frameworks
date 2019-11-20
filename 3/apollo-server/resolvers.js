@@ -6,7 +6,7 @@ export default {
   Query: {
     hello: (root, { name }) => `Hello ${name || "World"}!`,
     todos: (root, args, { db }) => db.get("todos").value(),
-    todo: root => `Hallo Stefan`
+    todo: (root, { id, message }) => `Hallo Stefan`
   },
 
   Mutation: {
@@ -15,10 +15,11 @@ export default {
       context.pubsub.publish("hey", { mySub: message });
       return message;
     },
-    addTodo: (root, { message }, { pubsub, db }) => {
+    addTodo: (root, { id, newMessage }, { db }) => {
       const todo = {
-        id: new Date().getUTCMilliseconds().valueOf(),
-        message: message
+        // id: new Date().getUTCMilliseconds(),
+        id: id,
+        message: newMessage
       };
 
       db.get("todos")
@@ -26,8 +27,36 @@ export default {
         .last()
         .write();
 
-      pubsub.publish("todos", { todoAdded: todo });
+      return todo;
+    },
 
+    updateTodo: (root, { idd, updateMessage }, { db }) => {
+      const todo = {
+        id: idd,
+        message: updateMessage
+      };
+
+      db.get("todo")
+        .from("todos")
+        .where(id == idd);
+
+      db.get("todos")
+        .push(todo)
+        .last()
+        .write();
+      return todo;
+    },
+
+    deleteTodo: (root, { id }, { db }) => {
+      const todo = {
+        id: id,
+        message: message
+      };
+
+      db.get("todos")
+        .push(todo)
+        .last()
+        .write();
       return todo;
     }
   }

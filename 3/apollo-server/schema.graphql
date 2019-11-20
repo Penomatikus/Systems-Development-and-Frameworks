@@ -12,13 +12,17 @@ type Query {
   "List of todos in the db"
   todos: [ToDo]
   "One Todo query for testing"
-  todo(id: Int!): ToDo
+  todo(id: Int!, message: String!): ToDo
 }
 
 type Mutation {
   myMutation: String!
   "Add a message and publish it on 'todos'"
-  addTodo(message: String!): ToDo!
+  addTodo(id: Int!, newMessage: String!): ToDo!
+  "Updates a todo with the given ID"
+  updateTodo(idd: Int!, updateMessage: String!): ToDo!
+  "Delets a todo with the given ID"
+  deleteTodo(id: Int!): ToDo!
 }
 
 "Input from user to create a todo"
