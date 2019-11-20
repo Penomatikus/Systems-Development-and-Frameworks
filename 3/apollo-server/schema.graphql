@@ -9,13 +9,13 @@ type ToDo {
 type Query {
   "Test query with a parameter"
   hello(name: String): String!
-  "List of messages sent by users"
+  "List of todos in the db"
   todos: [ToDo]
 }
 
 type Mutation {
   myMutation: String!
-  "Add a message and publish it on 'messages'"
+  "Add a message and publish it on 'todos'"
   addTodo(input: ToDoInput!): ToDo!
 }
 
