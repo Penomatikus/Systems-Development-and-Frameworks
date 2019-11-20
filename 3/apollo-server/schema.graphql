@@ -2,7 +2,7 @@ scalar JSON
 
 "A scalar type is a primitive types like ID, String, Boolean, or Int."
 type ToDo {
-  id: ID!
+  id: Int!
   message: String!
 }
 
@@ -12,13 +12,13 @@ type Query {
   "List of todos in the db"
   todos: [ToDo]
   "One Todo query for testing"
-  todo(id: ID!): ToDo
+  todo(id: Int!): ToDo
 }
 
 type Mutation {
   myMutation: String!
   "Add a message and publish it on 'todos'"
-  addTodo(input: ToDoInput!): ToDo!
+  addTodo(message: String!): ToDo!
 }
 
 "Input from user to create a todo"
