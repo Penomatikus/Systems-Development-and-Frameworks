@@ -32,28 +32,17 @@ export default {
     },
 
     updateTodo: (root, { id, updateMessage }, { db }) => {
-      // const todoUpdate = db.get("todos").find({ id: 0 });
-      // console.log(db.get("todos").value());
-      // console.log(parseInt(id));
-      // console.log(
-      //   db
-      //     .get("todos")
-      //     .find({ id: id })
-      //     .value()
-      // );
-      // console.log(db.get("todos").find({ id: 11 }));
-
       const toBeUpdated = db
         .get("todos")
         .find({ id: id })
-        .value();
+        .value().message;
 
       db.get("todos")
         .find({ id: id })
         .assign({ message: updateMessage })
         .write();
 
-      return `todo with ID: ${id} was updated to ${updateMessage}`;
+      return `todo with ID: ${id} was updated from ${toBeUpdated} to ${updateMessage}`;
     },
 
     deleteTodo: (root, { id }, { db }) => {
