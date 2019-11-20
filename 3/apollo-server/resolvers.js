@@ -42,24 +42,28 @@ export default {
       //     .value()
       // );
       // console.log(db.get("todos").find({ id: 11 }));
+
+
       db.get("todos")
         .find({ id: id })
         .assign({ message: updateMessage })
         .write();
-      return todo;
+
+      let todo = db.get("todos")
+        .find({ id: id }).value();
+
+      console.log(todo);
+
+      return "todo " + id + " was updated to " + updateMessage;
     },
 
     deleteTodo: (root, { id }, { db }) => {
-      const todo = {
-        id: id,
-        message: message
-      };
 
-      db.get("todos")
-        .push(todo)
-        .last()
-        .write();
-      return todo;
+      db.get('todos')
+      .remove({ id: id })
+      .write()
+
+      return "todo " + id + " was deleted";
     }
   }
 };
