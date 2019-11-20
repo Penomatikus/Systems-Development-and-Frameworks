@@ -12,7 +12,7 @@ type Query {
   "List of todos in the db"
   todos: [ToDo]
   "One Todo query for testing"
-  todo(id: Int!, message: String!): ToDo
+  todo(id: Int!): ToDo
 }
 
 type Mutation {
