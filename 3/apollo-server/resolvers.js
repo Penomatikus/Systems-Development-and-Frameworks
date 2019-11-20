@@ -1,5 +1,4 @@
 import GraphQLJSON from "graphql-type-json";
-import shortid from "shortid";
 
 export default {
   JSON: GraphQLJSON,
@@ -16,10 +15,10 @@ export default {
       context.pubsub.publish("hey", { mySub: message });
       return message;
     },
-    addTodo: (root, { input }, { pubsub, db }) => {
+    addTodo: (root, { message }, { pubsub, db }) => {
       const todo = {
-        id: shortid.generate(),
-        message: input.text
+        id: new Date().getUTCMilliseconds().valueOf(),
+        message: message
       };
 
       db.get("todos")
