@@ -11,6 +11,8 @@ type Query {
   hello(name: String): String!
   "List of todos in the db"
   todos: [ToDo]
+  "One Todo query for testing"
+  todo(id: ID!): ToDo
 }
 
 type Mutation {

@@ -6,7 +6,8 @@ export default {
 
   Query: {
     hello: (root, { name }) => `Hello ${name || "World"}!`,
-    todos: (root, args, { db }) => db.get("todos").value()
+    todos: (root, args, { db }) => db.get("todos").value(),
+    todo: root => `Hallo Stefan`
   },
 
   Mutation: {
