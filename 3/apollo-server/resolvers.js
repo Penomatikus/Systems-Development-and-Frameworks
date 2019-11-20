@@ -43,25 +43,23 @@ export default {
       // );
       // console.log(db.get("todos").find({ id: 11 }));
 
-
+      const toBeUpdated = db
+        .get("todos")
+        .find({ id: id })
+        .value();
+      console.log(toBeUpdated);
       db.get("todos")
         .find({ id: id })
         .assign({ message: updateMessage })
         .write();
 
-      let todo = db.get("todos")
-        .find({ id: id }).value();
-
-      console.log(todo);
-
-      return "todo " + id + " was updated to " + updateMessage;
+      return `todo with ID: ${id} was updated from ${toBeUpdated.message} from ${updateMessage}`;
     },
 
     deleteTodo: (root, { id }, { db }) => {
-
-      db.get('todos')
-      .remove({ id: id })
-      .write()
+      db.get("todos")
+        .remove({ id: id })
+        .write();
 
       return "todo " + id + " was deleted";
     }
