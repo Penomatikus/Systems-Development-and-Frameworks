@@ -47,13 +47,13 @@ export default {
         .get("todos")
         .find({ id: id })
         .value();
-      console.log(toBeUpdated);
+
       db.get("todos")
         .find({ id: id })
         .assign({ message: updateMessage })
         .write();
 
-      return `todo with ID: ${id} was updated from ${toBeUpdated.message} from ${updateMessage}`;
+      return `todo with ID: ${id} was updated to ${updateMessage}`;
     },
 
     deleteTodo: (root, { id }, { db }) => {
@@ -61,7 +61,7 @@ export default {
         .remove({ id: id })
         .write();
 
-      return "todo " + id + " was deleted";
+      return `todo with ID ${id} was deleted`;
     }
   }
 };
