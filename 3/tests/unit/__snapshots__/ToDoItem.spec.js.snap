@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`fetches single launch 1`] = `
+Object {
+  "data": Object {
+    "todo": null,
+  },
+  "errors": Array [
+    [GraphQLError: Cannot read property 'get' of undefined],
+  ],
+  "extensions": undefined,
+  "http": Object {
+    "headers": Headers {
+      Symbol(map): Object {},
+    },
+  },
+}
+`;

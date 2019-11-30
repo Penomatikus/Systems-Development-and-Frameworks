@@ -5,8 +5,8 @@ export default {
 
   Query: {
     hello: (root, { name }) => `Hello ${name || "World"}!`,
-    todos: (root, args, { db }) => db.get("todos").value(),
-    todo: (root, { id }, { db }) => db.get("todos").find({ id: id }).value()
+    todos: (root, args, { ds }) => ds.getTodos(),
+    todo: (root, { id }, { ds }) => { let debugtodo = ds.findTodo(id);console.log(debugtodo);return debugtodo}
   },
 
   Mutation: {
@@ -16,40 +16,28 @@ export default {
       return message;
     },
 
-    addTodo: (root, { id, newMessage }, { db }) => {
+    addTodo: (root, { id, newMessage }, { ds }) => {
       const todo = {
         // id: new Date().getUTCMilliseconds(),
         id: id,
         message: newMessage
       };
 
-      db.get("todos")
-        .push(todo)
-        .last()
-        .write();
+      ds.addTodo(todo);
 
       return todo;
     },
 
-    updateTodo: (root, { id, updateMessage }, { db }) => {
-      const toBeUpdated = db
-        .get("todos")
-        .find({ id: id })
-        .value().message;
+    updateTodo: (root, { id, updateMessage }, { ds }) => {
+      const toBeUpdated = ds.findTodo(id).message; // not save yet!(check undefined)
+      ds.updateTodo(id, updateMessage);
 
-      db.get("todos")
-        .find({ id: id })
-        .assign({ message: updateMessage })
-        .write();
 
       return `todo with ID: ${id} was updated from ${toBeUpdated} to ${updateMessage}`;
     },
 
-    deleteTodo: (root, { id }, { db }) => {
-      db.get("todos")
-        .remove({ id: id })
-        .write();
-
+    deleteTodo: (root, { id }, { ds }) => {
+      ds.deleteTodo(id);
       return `todo with ID ${id} was deleted`;
     }
   }

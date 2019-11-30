@@ -13,6 +13,8 @@
     "apollo:start": "vue-cli-service apollo:start"
   },
   "dependencies": {
+    "apollo-server": "^2.9.12",
+    "apollo-server-testing": "^2.9.9",
     "core-js": "^3.3.2",
     "graphql-type-json": "^0.2.1",
     "lowdb": "^1.0.0",

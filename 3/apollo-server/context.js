@@ -1,5 +1,6 @@
-import { db } from './utils/db'
+import { ds } from './utils/testds'
 import { processUpload } from './utils/upload'
+
 
 
 // Context passed to all resolvers (third argument)
@@ -8,7 +9,7 @@ import { processUpload } from './utils/upload'
 // eslint-disable-next-line no-unused-vars
 export default ({ req, connection }) => {
   return {
-    db,
+    ds,
     processUpload,
 
   }
