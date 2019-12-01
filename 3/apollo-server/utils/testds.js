@@ -7,7 +7,8 @@ for (var i=0;i<mok.length;i++) {
     return mok[i]
   }
 }
-return undefined}
+return undefined
+}
 
 export class TodoAPI extends DataSource {
   
@@ -21,19 +22,19 @@ export class TodoAPI extends DataSource {
   }
   
   findTodo(id) {
-    return searchelement(mok, id)
+    return searchelement(this.store, id)
   }
 
   getTodos() {
-   return mok
+   return this.store
   }
 
   deleteTodo(id) {
-   return mok.splice( mok.indexOf({id: id}), 1 );
+   return this.store.splice( this.store.indexOf({id: id}), 1 );
   }
 
   addTodo(todo) {
-   return mok.push(todo)
+   return this.store.push(todo)
   }
 
   updateTodo(id, newmessage){

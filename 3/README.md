@@ -28,6 +28,9 @@ https://www.apollographql.com/docs/tutorial/introduction/
 
 https://github.com/typicode/lowdb  
 
+# Notes 
+to run the test you have to turn off the server (test starts its own, and otherwise the port ist blocked which results in a "throw er"-exception aus der event.js welche nicht gefangen wird 
+
 # Exercise \#3
 
 Test-drive the development of a GraphQL server.
