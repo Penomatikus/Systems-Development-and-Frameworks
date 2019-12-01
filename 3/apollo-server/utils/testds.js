@@ -26,6 +26,7 @@ export class TodoAPI extends DataSource {
   }
 
   getTodos() {
+   //console.log(this.store)
    return this.store
   }
 
@@ -38,7 +39,7 @@ export class TodoAPI extends DataSource {
   }
 
   updateTodo(id, newmessage){
-   var tmp = findTodo(id);
+   var tmp = this.findTodo(id);
    if (tmp == undefined){return undefined}
    tmp.message = newmessage;
    return tmp

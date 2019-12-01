@@ -20,28 +20,28 @@ export default {
       return message;
     },
 
-    addTodo: (root, { id, newMessage }, { ds }) => {
+    addTodo: (root, { id, newMessage }, { dataSources }) => {
       const todo = {
         // id: new Date().getUTCMilliseconds(),
         id: id,
         message: newMessage
       };
 
-      ds.addTodo(todo);
+      dataSources.ds.addTodo(todo);
 
       return todo;
     },
 
-    updateTodo: (root, { id, updateMessage }, { ds }) => {
-      const toBeUpdated = ds.findTodo(id).message; // not save yet!(check undefined)
-      ds.updateTodo(id, updateMessage);
+    updateTodo: (root, { id, updateMessage }, { dataSources }) => {
+      const toBeUpdated = dataSources.ds.findTodo(id).message; // not save yet!(check undefined)
+      dataSources.ds.updateTodo(id, updateMessage);
 
 
       return `todo with ID: ${id} was updated from ${toBeUpdated} to ${updateMessage}`;
     },
 
-    deleteTodo: (root, { id }, { ds }) => {
-      ds.deleteTodo(id);
+    deleteTodo: (root, { id }, { dataSources }) => {
+      dataSources.ds.deleteTodo(id);
       return `todo with ID ${id} was deleted`;
     }
   }
