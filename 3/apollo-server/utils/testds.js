@@ -7,7 +7,7 @@ for (var i=0;i<mok.length;i++) {
     return mok[i]
   }
 }
-return undefined
+return "findTodo: element not found"
 }
 
 export class TodoAPI extends DataSource {

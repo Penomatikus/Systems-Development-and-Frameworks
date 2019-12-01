@@ -5,8 +5,12 @@ export default {
 
   Query: {
     hello: (root, { name }) => `Hello ${name || "World"}!`,
-    todos: (root, args, { ds }) => ds.getTodos(),
-    todo: (root, { id }, { ds }) => { let debugtodo = ds.findTodo(id);console.log(debugtodo);return debugtodo}
+    todos: (root, args, { dataSources }) => dataSources.ds.getTodos(),
+    todo: (root, { id }, { dataSources}) => { let debugtodo = dataSources.ds.findTodo(id);
+                                                              //console.log(debugtodo);
+                                                              return debugtodo
+                                            }
+
   },
 
   Mutation: {
