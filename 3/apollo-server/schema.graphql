@@ -11,6 +11,7 @@ type Query {
   hello(name: String): String!
   "List of todos in the db"
   todos: [ToDo]
+  todosForUser(userAuth: String!): [ToDo]
   "One Todo query for testing"
   todo(id: Int!): ToDo
 }
@@ -18,7 +19,7 @@ type Query {
 type Mutation {
   myMutation: String!
   "Add a message and publish it on 'todos'"
-  addTodo(id: Int!, newMessage: String!): ToDo!
+  addTodo(id: Int!, newMessage: String!, userAuth: String!): ToDo!
   "Updates a todo with the given ID"
   updateTodo(id: Int!, updateMessage: String!): String!
   "Delets a todo with the given ID"

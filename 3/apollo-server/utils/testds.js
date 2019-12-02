@@ -1,6 +1,6 @@
 const { DataSource } = require('apollo-datasource');
 
-function searchelement(mok,id){
+function searchelement(mok, id){
 for (var i=0;i<mok.length;i++) {
   if (mok[i].id == id) 
   {
@@ -8,6 +8,21 @@ for (var i=0;i<mok.length;i++) {
   }
 }
 return "findTodo: element not found"
+}
+
+function filterTodos(mok, userAuth) {
+  var retArray = [];
+
+  for (var i=0;i<mok.length;i++) {
+    if (mok[i].userAuth == userAuth) 
+    {      
+      retArray.push(mok[i])
+    }
+  }
+
+  if(retArray.length == 0)
+    console.log("no valid todos found for user")
+  return retArray
 }
 
 export class TodoAPI extends DataSource {
@@ -21,21 +36,24 @@ export class TodoAPI extends DataSource {
     this.context = config.context;
   }
   
-  findTodo(id) {
-    return searchelement(this.store, id)
+  findTodo(id, userAuth) {
+    return searchelement(this.store, id, userAuth)
   }
 
-  getTodos() {
-   //console.log(this.store)
-   return this.store
+  getAllTodos() {
+    return this.store;
+  }
+
+  getTodosForUser(userAuth) {
+    return filterTodos(this.store, userAuth);
   }
 
   deleteTodo(id) {
    return this.store.splice( this.store.indexOf({id: id}), 1 );
   }
 
-  addTodo(todo) {
-   return this.store.push(todo)
+  addTodo(todo, userAuth) {
+   return this.store.push({id: todo.id, message: todo.message, userAuth: userAuth})
   }
 
   updateTodo(id, newmessage){
@@ -44,7 +62,6 @@ export class TodoAPI extends DataSource {
    tmp.message = newmessage;
    return tmp
   }
-
 
 }
 

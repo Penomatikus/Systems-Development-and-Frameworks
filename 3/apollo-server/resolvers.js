@@ -1,16 +1,23 @@
 import GraphQLJSON from "graphql-type-json";
+import { decodeJwt } from "./utils/jwtCreator";
 
 export default {
   JSON: GraphQLJSON,
 
   Query: {
     hello: (root, { name }) => `Hello ${name || "World"}!`,
-    todos: (root, args, { dataSources }) => dataSources.ds.getTodos(),
-    todo: (root, { id }, { dataSources}) => { let debugtodo = dataSources.ds.findTodo(id);
-                                                              //console.log(debugtodo);
-                                                              return debugtodo
-                                            }
-
+    todos: (root, args, { dataSources }) => dataSources.ds.getAllTodos(),
+    todosForUser: (root, {userAuth}, { dataSources }) => {
+      if(decodeJwt(userAuth, "secret")) {
+        return dataSources.ds.getTodosForUser(userAuth)
+      }
+      return [{message:"SECRET NOT VALID"}]
+    },
+    todo: (root, { id }, { dataSources}) => { 
+      let debugtodo = dataSources.ds.findTodo(id);
+      //console.log(debugtodo);
+      return debugtodo
+    }
   },
 
   Mutation: {
@@ -20,16 +27,21 @@ export default {
       return message;
     },
 
-    addTodo: (root, { id, newMessage }, { dataSources }) => {
+    addTodo: (root, { id, newMessage, userAuth }, { dataSources }) => {
+      //console.log(newMessage);
+      //console.log(userAuth);
       const todo = {
         // id: new Date().getUTCMilliseconds(),
         id: id,
-        message: newMessage
-      };
+        message: newMessage            
+      }; 
 
-      dataSources.ds.addTodo(todo);
-
-      return todo;
+      if(decodeJwt(userAuth, "secret")) {
+        dataSources.ds.addTodo(todo, userAuth);
+        return todo;
+      }
+      
+      return undefined;
     },
 
     updateTodo: (root, { id, updateMessage }, { dataSources }) => {

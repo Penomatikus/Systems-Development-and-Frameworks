@@ -1,31 +1,23 @@
-import { shallowMount } from "@vue/test-utils";
-import ListItem from "@/components/ListItem.vue";
-
 import fs from 'fs'
 import path from 'path'
 import resolvers from '../../apollo-server/resolvers'
 
 import { TodoAPI } from '../../apollo-server/utils/testds'
+import { createJwt, decodeJwt } from '../../apollo-server/utils/jwtCreator'
+import { MOCK_UP_DATASOURCE_CONTENT, MOCK_UP_TEST_RESULTS } from '../../apollo-server/utils/mockUpDs'
 
 const { ApolloServer, gql } = require('apollo-server');
 const { createTestClient } = require('apollo-server-testing');
 
 const typeDefs = fs.readFileSync(path.resolve(__dirname, '../../apollo-server/schema.graphql'), { encoding: 'utf8' })
-
-const mok = [{id: 1,message:"a"},{id: 2,message:"b"}];  
-const mocksds = new TodoAPI(mok);
-
-
-
-const allMocks = () => mocksds
-
-
+var mok = MOCK_UP_DATASOURCE_CONTENT;  
 
 const ADD_TODO = gql `
-mutation addTodo($id: Int!, $newMessage: String!){
+mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!){
   addTodo(
     id: $id
     newMessage: $newMessage
+    userAuth: $userAuth
   ){
       id
       message
@@ -67,24 +59,39 @@ const GET_TODOS = gql `
         }
 `;
 
+const GET_TODOS_FOR_USER = gql `
+    query todosForUser($userAuth: String!){
+        todosForUser(userAuth: $userAuth)   {
+          id
+          message 
+        }
+        }
+`;
+
 //actual Test
+describe('Jwt creation test', () => {
+    it('should create a jwt token',() => {    
+        let token = createJwt('stuff');        
+        expect(token).not.toBe(undefined);
+        expect(token).not.toBe("");
+    });
+    it('should decode a jwt token', () => {
+        let token = createJwt('testSecret'); 
+        expect(decodeJwt(token, 'testSecret')).toBe(true);  
+    });
+});
+
 
 describe('Test Todo query', () => {
-    it('finds a todo by id', async() => {
+    it('finds a todo by id', async() => {        
 
+        var tmpMock = MOCK_UP_DATASOURCE_CONTENT.slice(0)
         const server = new ApolloServer({
             typeDefs,
             resolvers,
             dataSources: () => ({
-                ds: mocksds
-            }),
-            context: () => ({
-                id: 1,
-                message: "a"
-            }, {
-                id: 2,
-                message: "b"
-            }),
+                ds: new TodoAPI(tmpMock)
+            }),            
             mockEntireSchema: false,
             formatError: (err) => {
                 console.log(err.stack);
@@ -108,19 +115,13 @@ describe('Test Todo query', () => {
 
     it('gets the list of all Todos', async() => {
 
+        var tmpMock = MOCK_UP_DATASOURCE_CONTENT.slice(0)
         const server = new ApolloServer({
             typeDefs,
             resolvers,
             dataSources: () => ({
-                ds: mocksds
-            }),
-            context: () => ({
-                id: 1,
-                message: "a"
-            }, {
-                id: 2,
-                message: "b"
-            }),
+                ds: new TodoAPI(tmpMock)
+            }),            
             mockEntireSchema: false,
             formatError: (err) => {
                 console.log(err.stack);
@@ -137,7 +138,7 @@ describe('Test Todo query', () => {
             variables: {  }
         });
         //console.log(res)
-        expect(res.data.todos).toEqual(mok);
+        expect(res.data.todos).toEqual(MOCK_UP_TEST_RESULTS);
     });
 });
 
@@ -147,18 +148,13 @@ describe('Test Todo query', () => {
 describe('Test todo mutations', () => {
     it('adds a todo', async() => {
 
+        var tmpMock = MOCK_UP_DATASOURCE_CONTENT.slice(0)
+
         const server = new ApolloServer({
             typeDefs,
             resolvers,
             dataSources: () => ({
-                ds: mocksds
-            }),
-            context: () => ({
-                id: 1,
-                message: "a"
-            }, {
-                id: 2,
-                message: "b"
+                ds: new TodoAPI(tmpMock)
             }),
             mockEntireSchema: false,
             formatError: (err) => {
@@ -171,10 +167,11 @@ describe('Test todo mutations', () => {
             query
         } = createTestClient(server);
 
+        let testUser = createJwt("secret")
 
         const addresult = await query({
             query: ADD_TODO,
-            variables: { id: 4 , newMessage: "newentry" }
+            variables: { id: 10 , newMessage: "newentry", userAuth: testUser}
         });
 
         //console.log(addresult)
@@ -182,7 +179,7 @@ describe('Test todo mutations', () => {
         const res = await query({
             query: GET_TODO,
             variables: {
-                id: 4
+                id: 10
             }
         });
         //console.log(res)
@@ -191,18 +188,13 @@ describe('Test todo mutations', () => {
 
     it('updates a todo', async() => {
 
+        var tmpMock = [{id: 1,message:"a", userAuth: "0"},{id: 2,message:"b", userAuth: "0"}]
+
         const server = new ApolloServer({
             typeDefs,
             resolvers,
             dataSources: () => ({
-                ds: mocksds
-            }),
-            context: () => ({
-                id: 1,
-                message: "a"
-            }, {
-                id: 2,
-                message: "b"
+                ds: new TodoAPI(tmpMock)
             }),
             mockEntireSchema: false,
             formatError: (err) => {
@@ -234,18 +226,13 @@ describe('Test todo mutations', () => {
 
 it('deletes a todo', async() => {
 
+    var tmpMock = MOCK_UP_DATASOURCE_CONTENT.slice(0)
+
         const server = new ApolloServer({
             typeDefs,
             resolvers,
             dataSources: () => ({
-                ds: mocksds
-            }),
-            context: () => ({
-                id: 1,
-                message: "a"
-            }, {
-                id: 2,
-                message: "b"
+                ds: new TodoAPI(tmpMock)
             }),
             mockEntireSchema: false,
             formatError: (err) => {
@@ -258,11 +245,11 @@ it('deletes a todo', async() => {
             query
         } = createTestClient(server);
 
-
+        let testUser = createJwt("secret")
 
         const addresult = await query({
             query: ADD_TODO,
-            variables: { id: 6 , newMessage: "newentry" }
+            variables: { id: 6 , newMessage: "newentry", userAuth: testUser }
         });
 
         const delresult = await query({
@@ -277,13 +264,49 @@ it('deletes a todo', async() => {
             variables: { }
         });
         //console.log(res)
-        expect(res.data.todos).toEqual(mok);
+        expect(res.data.todos).toEqual(MOCK_UP_TEST_RESULTS);
     });
 
 
 });
 
+describe("JWT tests", () => {
+    it('gets the list of all Todos for user', async() => {      
+        var tmpMock = [] 
+        const server = new ApolloServer({
+            typeDefs,
+            resolvers,
+            dataSources: () => ({
+                ds: new TodoAPI(tmpMock)
+            }),
+            mockEntireSchema: false,
+            formatError: (err) => {
+                console.log(err.stack);
+                return err
+            }
+        });
 
+        const {
+            query
+        } = createTestClient(server);
+
+        let testUser = createJwt("secret")
+
+        const addresult = await query({
+            query: ADD_TODO,
+            variables: { id: 0 , newMessage: "bla", userAuth: testUser }
+        });
+
+        var result = [{id: 0, message: "bla"}] 
+
+        const res = await query({
+            query: GET_TODOS_FOR_USER,
+            variables: { userAuth: testUser }
+        });
+        //console.log(res)
+        expect(res.data.todosForUser).toEqual(result);
+    });
+});
 
 
 
