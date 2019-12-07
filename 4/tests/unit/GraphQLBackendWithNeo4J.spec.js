@@ -74,9 +74,9 @@ describe('Test todo with Database interactions', () => {
     it('adds a todo and tries to retrieve it', async() => {
         
         var driver = neo4j.driver(
-            'neo4j://localhost',
-            neo4j.auth.basic('neo4j', 'neo4j')
-        )                 
+            'bolt://localhost:7687',
+            neo4j.auth.basic('neo4j', '123456789')
+        ) 
  
         const server = new ApolloServer({
             typeDefs,
@@ -86,7 +86,7 @@ describe('Test todo with Database interactions', () => {
             }),
             mockEntireSchema: false,
             formatError: (err) => {
-                console.log(err.stack);
+                console.log(err);
                 return err
             }
         });
@@ -102,7 +102,7 @@ describe('Test todo with Database interactions', () => {
             variables: { id: 10 , newMessage: "newentry", userAuth: testUser}
         });
 
-        //console.log(addresult)
+        console.log(addresult)
         
         const res = await query({
             query: GET_TODO,
