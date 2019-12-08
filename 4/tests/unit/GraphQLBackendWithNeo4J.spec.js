@@ -102,7 +102,7 @@ describe('Test todo with Database interactions', () => {
             variables: { id: 10 , newMessage: "newentry", userAuth: testUser}
         });
 
-        console.log(addresult)
+        //console.log(addresult)
         
         const res = await query({
             query: GET_TODO,
@@ -110,7 +110,7 @@ describe('Test todo with Database interactions', () => {
                 id: 10
             }
         });
-        console.log(res)
+        //console.log(res)
         expect(res.data.todo.message).toEqual("newentry");
         
         await driver.close()

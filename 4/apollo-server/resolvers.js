@@ -1,5 +1,6 @@
 import GraphQLJSON from "graphql-type-json";
 import { decodeJwt } from "./utils/jwtCreator";
+import { async } from "rxjs/internal/scheduler/async";
 
 export default {
   JSON: GraphQLJSON,
@@ -13,9 +14,8 @@ export default {
       }
       return [{message:"SECRET NOT VALID"}]
     },
-    todo: (root, { id }, { dataSources}) => { 
-      let debugtodo = dataSources.ds.findTodo(id);
-      //console.log(debugtodo);
+    todo: async (root, { id }, { dataSources}) => { 
+      let debugtodo = await dataSources.ds.findTodo(id);
       return debugtodo
     }
   },
@@ -27,17 +27,14 @@ export default {
       return message;
     },
 
-    addTodo: (root, { id, newMessage, userAuth }, { dataSources }) => {
-      //console.log(newMessage);
-      //console.log(userAuth);
+    addTodo: async (root, { id, newMessage, userAuth }, { dataSources }) => {
       const todo = {
-        // id: new Date().getUTCMilliseconds(),
         id: id,
         message: newMessage            
       }; 
 
       if(decodeJwt(userAuth, "secret")) {
-        dataSources.ds.addTodo(todo, userAuth);
+        await dataSources.ds.addTodo(todo, userAuth);
         return todo;
       }
       

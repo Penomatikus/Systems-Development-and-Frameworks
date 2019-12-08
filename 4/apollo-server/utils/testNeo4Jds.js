@@ -1,4 +1,5 @@
 import { driver } from 'neo4j-driver';
+import { async } from 'rxjs/internal/scheduler/async';
 var neo4j = require('neo4j-driver')
 
 const { DataSource } = require('apollo-datasource');
@@ -44,29 +45,27 @@ export class TodoNeo4JAPI extends DataSource {
     this.context = config.context;
   }
   
-  findTodo(id, userAuth) {
-    const driver = new neo4j.driver(
-      "bolt://localhost:7687",
-      neo4j.auth.basic("neo4j", "123456789")
-    ) 
+  async findTodo(id, userAuth) {
+    const driver = this.store
+    const session = driver.session()     
+    let foundTodo;    
 
-    const session = driver.session()         
-
-    let foundTodo;
-    console.log("FIND_TODO_ID: " + id)  
-    console.log("FIND_TODO_SESSION: " + session)  
-
-    // TODO use query params session run
-    session.run('MATCH (todo:Todo { id: $todoId }) return todo', {todoId : id})
-    .then(record => {
-      console.log(record)    
-      foundTodo = record;  
-    })
-    .catch(error => {
+    try {
+      await session.run(`MATCH (todo:Todo { id: ${id} }) return todo`)
+        .then(result => { 
+          const tmpTodo = result.records[0].get("todo"); 
+          foundTodo = {
+            id: tmpTodo.properties.id.low, 
+            message: tmpTodo.properties.message, 
+            userAuth: tmpTodo.properties.userAuth
+          }}
+          )
+        .catch(error => { console.log(error)})
+    } catch (error) {
       console.log(error)
-    })
-    .then(() => session.close())   
-
+    } finally {
+      session.close()
+    }
     return foundTodo
   }
 
@@ -97,37 +96,18 @@ export class TodoNeo4JAPI extends DataSource {
    return this.store.splice( this.store.indexOf({id: id}), 1 );
   }
  
-  addTodo(todo, userAuth) {
-    const driver = new neo4j.driver(
-      'bolt://localhost:7687',
-      neo4j.auth.basic('neo4j', '123456789')
-    ) 
+  async addTodo(todo, userAuth) {
+    const driver = this.store  
+    const session = driver.session()
 
-    const session = driver.session()        
-    
-    // TODO use query params session run
-    console.log("ADD TODO: " + todo.id + "  " + todo.message)
-    const id = todo.id;
-    const mymessage = todo.message; 
-    const myuserAuth = userAuth;  
-    const cypher = `CREATE (n:Todo { id: ${id}, message: ${mymessage}, userAuth: ${myuserAuth} })`;
-    let test = 0;
-    let sessionResult = session.run(cypher);
-    console.log("SESSION_RUN: " + sessionResult.then(result => { console.log("RESULT: " + result) })) 
-    session.run(cypher)
-        .then(result => {
-            test = 2
-            console.log(result)
-        })
-        .catch(e => {
-            // Output the error
-            console.log(e);
-        })
-        .then(() => {
-            // Close the Session
-            return session.close();
-        });
-      console.log("Test:" + test)
+    const cypher = `CREATE (n:Todo { id: ${todo.id}, message: '${todo.message}', userAuth: '${userAuth}' })`;
+    try {
+      await session.run(cypher).catch(e => { console.log(e); })
+    } catch(error) { 
+      console.log("ERROR: " + error)
+    } finally {
+        session.close()
+    }
   }
 
   updateTodo(id, newmessage){
