@@ -41,12 +41,10 @@ export default {
       return undefined;
     },
 
-    updateTodo: (root, { id, updateMessage }, { dataSources }) => {
-      const toBeUpdated = dataSources.ds.findTodo(id).message; // not save yet!(check undefined)
-      dataSources.ds.updateTodo(id, updateMessage);
+    updateTodo: async (root, { id, updateMessage }, { dataSources }) => {
+      await dataSources.ds.updateTodo(id, updateMessage);
 
-
-      return `todo with ID: ${id} was updated from ${toBeUpdated} to ${updateMessage}`;
+      return `todo with ID: ${id} was updated to ${updateMessage}`;
     },
 
     deleteTodo: (root, { id }, { dataSources }) => {

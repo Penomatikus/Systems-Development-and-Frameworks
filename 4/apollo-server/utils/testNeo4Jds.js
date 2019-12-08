@@ -29,10 +29,6 @@ function filterTodos(mok, userAuth) {
   return retArray
 }
 
-function createTodoInNeo4J(todo, userAuth) {
-  return `CREATE (n:Todo { id: ` + todo.id + `, message: ` + todo.message + `, userAuth: ` + userAuth + `})`
-}
-
 // this.store => a neo4j driver of database
 export class TodoNeo4JAPI extends DataSource {
   
@@ -44,6 +40,14 @@ export class TodoNeo4JAPI extends DataSource {
   initialize(config) {
     this.context = config.context;
   }
+
+  nodeToTodoObject(foundNode){
+    return {
+      id: foundNode.properties.id.low, 
+      message: foundNode.properties.message, 
+      userAuth: foundNode.properties.userAuth
+    }
+  }
   
   async findTodo(id, userAuth) {
     const driver = this.store
@@ -53,13 +57,9 @@ export class TodoNeo4JAPI extends DataSource {
     try {
       await session.run(`MATCH (todo:Todo { id: ${id} }) return todo`)
         .then(result => { 
-          const tmpTodo = result.records[0].get("todo"); 
-          foundTodo = {
-            id: tmpTodo.properties.id.low, 
-            message: tmpTodo.properties.message, 
-            userAuth: tmpTodo.properties.userAuth
-          }}
-          )
+          const node = result.records[0].get("todo"); 
+          foundTodo = this.nodeToTodoObject(node)
+        })
         .catch(error => { console.log(error)})
     } catch (error) {
       console.log(error)
@@ -110,11 +110,24 @@ export class TodoNeo4JAPI extends DataSource {
     }
   }
 
-  updateTodo(id, newmessage){
-   var tmp = this.findTodo(id);
-   if (tmp == undefined){return undefined}
-   tmp.message = newmessage;
-   return tmp
+  async updateTodo(id, newmessage){
+    const driver = this.store
+    const session = driver.session()
+    let updatedTodo;
+
+    const cypher = `MATCH (todo:Todo {id: ${id}}) SET todo.message = '${newmessage}' return todo as todo`
+    try {
+      await session.run(cypher).then(result => { 
+        const node = result.records[0].get("todo"); 
+        updatedTodo = this.nodeToTodoObject(node)
+      })
+      .catch(error => { console.log(error)})
+    } catch(error) { 
+      console.log("ERROR: " + error)
+    } finally {
+        session.close()
+    }
+   return updatedTodo
   }
 
 }

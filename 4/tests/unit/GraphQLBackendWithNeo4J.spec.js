@@ -116,43 +116,52 @@ describe('Test todo with Database interactions', () => {
         await driver.close()
     });
 
-//    it('updates a todo', async() => {
-//
-//        var tmpMock = []
-//
-//        const server = new ApolloServer({
-//            typeDefs,
-//            resolvers,
-//            dataSources: () => ({
-//                ds: new TodoAPI(tmpMock)
-//            }),
-//            mockEntireSchema: false,
-//            formatError: (err) => {
-//                console.log(err.stack);
-//                return err
-//            }
-//        });
-//
-//        const {
-//            query
-//        } = createTestClient(server);
-//
-//        const updateresult = await query({
-//            query: UPDATE_TODO,
-//            variables: { id: 2 , updateMessage: "newmessage" }
-//        });
-//
-//        //console.log(updateresult)
-//
-//        const res = await query({
-//            query: GET_TODO,
-//            variables: { id: 2}
-//        });
-//
-//        
-//        //console.log(res)
-//        expect(res.data.todo.message).toEqual("newmessage");
-//    });
+    it('updates a todo', async() => {
+
+      var driver = neo4j.driver(
+        'bolt://localhost:7687',
+        neo4j.auth.basic('neo4j', '123456789')
+      ) 
+
+    const server = new ApolloServer({
+        typeDefs,
+        resolvers,
+        dataSources: () => ({
+            ds: new TodoNeo4JAPI(driver)
+        }),
+        mockEntireSchema: false,
+        formatError: (err) => {
+            console.log(err);
+            return err
+        }
+    });
+
+        const {
+            query
+        } = createTestClient(server);
+
+        let testUser = createJwt("secret")
+
+        const addresult = await query({
+            query: ADD_TODO,
+            variables: { id: 2, newMessage: "TO_BE_UPDATED_TODO", userAuth: testUser}
+        });
+
+        const updateresult = await query({
+            query: UPDATE_TODO,
+            variables: { id: 2 , updateMessage: "newmessage" }
+        });
+
+        //console.log(updateresult)
+
+        const res = await query({
+            query: GET_TODO,
+            variables: { id: 2}
+        })
+
+        //console.log(res)
+        expect(res.data.todo.message).toEqual("newmessage");
+    });
 //
 //it('deletes a todo', async() => {
 //
