@@ -70,19 +70,33 @@ const GET_TODOS_FOR_USER = gql `
 
 //##########################################################################
 
+async function addstuff(query, testUser) {
+
+for (let i = 0; i<5;i++){
+const addresult = await query({
+            query: ADD_TODO,
+            variables: { id: i , newMessage: "newentry"+i, userAuth: testUser}
+        });
+
+}
+}
+
+var driver = neo4j.driver(
+            'bolt://localhost:7687',
+            neo4j.auth.basic('neo4j', 'ggs')
+        ) 
+ 
+        const serverds = new TodoNeo4JAPI(driver);
+     
+
 describe('Test todo with Database interactions', () => {
     it('adds a todo and tries to retrieve it', async() => {
         
-        var driver = neo4j.driver(
-            'bolt://localhost:7687',
-            neo4j.auth.basic('neo4j', '123456789')
-        ) 
- 
         const server = new ApolloServer({
             typeDefs,
             resolvers,
             dataSources: () => ({
-                ds: new TodoNeo4JAPI(driver)
+                ds: serverds
             }),
             mockEntireSchema: false,
             formatError: (err) => {
@@ -110,24 +124,19 @@ describe('Test todo with Database interactions', () => {
                 id: 10
             }
         });
-        //console.log(res)
+        //console.log(server)
         expect(res.data.todo.message).toEqual("newentry");
+        await serverds.deleteAll();
         
-        await driver.close()
     });
 
     it('updates a todo', async() => {
-
-      var driver = neo4j.driver(
-        'bolt://localhost:7687',
-        neo4j.auth.basic('neo4j', '123456789')
-      ) 
 
     const server = new ApolloServer({
         typeDefs,
         resolvers,
         dataSources: () => ({
-            ds: new TodoNeo4JAPI(driver)
+            ds: serverds
         }),
         mockEntireSchema: false,
         formatError: (err) => {
@@ -142,10 +151,7 @@ describe('Test todo with Database interactions', () => {
 
         let testUser = createJwt("secret")
 
-        const addresult = await query({
-            query: ADD_TODO,
-            variables: { id: 2, newMessage: "TO_BE_UPDATED_TODO", userAuth: testUser}
-        });
+        await addstuff(query, testUser);
 
         const updateresult = await query({
             query: UPDATE_TODO,
@@ -161,6 +167,9 @@ describe('Test todo with Database interactions', () => {
 
         //console.log(res)
         expect(res.data.todo.message).toEqual("newmessage");
+        //await serverds.deleteAll();
+
+	
     });
 //
 //it('deletes a todo', async() => {

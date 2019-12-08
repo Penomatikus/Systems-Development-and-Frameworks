@@ -48,6 +48,21 @@ export class TodoNeo4JAPI extends DataSource {
       userAuth: foundNode.properties.userAuth
     }
   }
+
+ async deleteAll() {
+    const driver = this.store
+    const session = driver.session()     
+    
+    try {
+      await session.run(`MATCH (n) DETACH DELETE n;`)
+        .catch(error => { console.log(error)})
+    } catch (error) {
+      console.log(error)
+    } finally {
+      session.close()
+    }
+  }
+
   
   async findTodo(id, userAuth) {
     const driver = this.store
@@ -96,10 +111,50 @@ export class TodoNeo4JAPI extends DataSource {
    return this.store.splice( this.store.indexOf({id: id}), 1 );
   }
  
-  async addTodo(todo, userAuth) {
+
+async userExists(userAuth){
     const driver = this.store  
     const session = driver.session()
+    let exists = false;
 
+    const cypher = `match (n:User {userAuth: '${userAuth}'}) return n`;
+    try {
+      await session.run(cypher).then(result => { 
+        const nodecount = result.records.length;console.log(nodecount) ;
+        if (nodecount > 0){ exists = true;}
+      })
+    } catch(error) { 
+      //console.log("ERROR: " + error)
+    } finally {
+        session.close()
+    }
+    return exists;
+}
+
+  async addUser(userAuth) {
+    const driver = this.store  
+    const session = driver.session()    
+    
+    const cypher = `CREATE (n:User { userAuth: '${userAuth}' })`;
+    try {
+      await session.run(cypher).catch(e => { console.log(e); })
+    } catch(error) { 
+      console.log("ERROR: " + error)
+    } finally {
+        session.close()
+    }
+  }
+
+
+  async addTodo(todo, userAuth) {
+    const driver = this.store  
+   
+    
+    if (await this.userExists(userAuth) == false){
+    await this.addUser(userAuth);
+    }
+
+    const session = driver.session()
     const cypher = `CREATE (n:Todo { id: ${todo.id}, message: '${todo.message}', userAuth: '${userAuth}' })`;
     try {
       await session.run(cypher).catch(e => { console.log(e); })
