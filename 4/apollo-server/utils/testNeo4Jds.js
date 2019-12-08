@@ -99,8 +99,8 @@ export class TodoNeo4JAPI extends DataSource {
  
   addTodo(todo, userAuth) {
     const driver = new neo4j.driver(
-      "bolt://localhost:7687",
-      neo4j.auth.basic("neo4j", "123456789")
+      'bolt://localhost:7687',
+      neo4j.auth.basic('neo4j', '123456789')
     ) 
 
     const session = driver.session()        
@@ -112,11 +112,12 @@ export class TodoNeo4JAPI extends DataSource {
     const myuserAuth = userAuth;  
     const cypher = `CREATE (n:Todo { id: ${id}, message: ${mymessage}, userAuth: ${myuserAuth} })`;
     let test = 0;
-    const tx = session.beginTransaction();
-    tx.run(cypher)
+    let sessionResult = session.run(cypher);
+    console.log("SESSION_RUN: " + sessionResult.then(result => { console.log("RESULT: " + result) })) 
+    session.run(cypher)
         .then(result => {
             test = 2
-            console.log("hihihihiih")
+            console.log(result)
         })
         .catch(e => {
             // Output the error
@@ -125,10 +126,6 @@ export class TodoNeo4JAPI extends DataSource {
         .then(() => {
             // Close the Session
             return session.close();
-        })
-        .then(() => {
-            // Close the Driver
-            return driver.close();
         });
       console.log("Test:" + test)
   }
