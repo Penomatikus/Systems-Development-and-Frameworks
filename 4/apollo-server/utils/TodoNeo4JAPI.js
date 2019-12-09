@@ -22,6 +22,13 @@ function filterTodos(mok, userAuth) {
     return retArray
 }
 
+//filter modes for getAllTodos
+export var FILTER_MODE = {
+    ASC: 'asc',
+    DESC: 'desc',
+    NONE: 'none',
+}
+
 // this.store => a neo4j driver of database
 export class TodoNeo4JAPI extends DataSource {
     constructor(store) {
@@ -39,6 +46,30 @@ export class TodoNeo4JAPI extends DataSource {
             message: foundNode.properties.message,
             userAuth: foundNode.properties.userAuth,
         }
+    }
+
+    declareFilter(FILTER_MODE) {
+        console.log('FILTERMODE: ' + FILTER_MODE)
+        let filter
+        switch (String(FILTER_MODE)) {
+            case 'asc': {
+                filter = ' ORDER BY todo.id ASC'
+                break
+            }
+            case 'desc': {
+                filter = ' ORDER BY todo.id DESC'
+                break
+            }
+            case 'none': {
+                filter = ''
+                break
+            }
+            default: {
+                filter = 'test'
+                break
+            }
+        }
+        return filter
     }
 
     async findTodo(id) {
@@ -64,22 +95,30 @@ export class TodoNeo4JAPI extends DataSource {
         return foundTodo
     }
 
-    getAllTodos() {
+    async getAllTodos(FILTER_MODE) {
         var session = this.store.session()
+        let allTodos = []
+        let filter = this.declareFilter(FILTER_MODE)
+        console.log(filter)
 
-        let allTodos
-
-        session
-            .run('MATCH (n) return n', {})
-            .then(result => {
-                console.log(result.records)
-                allTodos = result.records
-            })
-            .catch(error => {
-                console.log(error)
-            })
-            .then(() => session.close())
-
+        try {
+            await session
+                .run(`MATCH (todo:Todo) return todo ${filter}`)
+                .then(result => {
+                    result.records.forEach(element => {
+                        allTodos.push(
+                            this.nodeToTodoObject(element.get('todo'))
+                        )
+                    })
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            session.close()
+        }
         return allTodos
     }
 
