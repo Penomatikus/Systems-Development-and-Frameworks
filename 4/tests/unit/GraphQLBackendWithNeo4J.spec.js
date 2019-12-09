@@ -1,4 +1,8 @@
-import { TodoNeo4JAPI } from '../../apollo-server/utils/testNeo4Jds'
+import {
+    FILTER_MODE,
+    TodoNeo4JAPI,
+} from '../../apollo-server/utils/TodoNeo4JAPI'
+
 import { createJwt } from '../../apollo-server/utils/jwtCreator'
 import fs from 'fs'
 import path from 'path'
@@ -44,8 +48,8 @@ const GET_TODO = gql`
 `
 
 const GET_TODOS = gql`
-    {
-        todos {
+    query todos($FILTER_MODE: String!) {
+        todos(FILTER_MODE: $FILTER_MODE) {
             id
             message
         }
@@ -90,7 +94,7 @@ async function addMultipleTodos(times, testClientQuery, jwtToken) {
             query: ADD_TODO,
             variables: {
                 id: Math.floor(Math.random() * 1000),
-                newMessage: 'newentry',
+                newMessage: 'n1000',
                 userAuth: jwtToken,
             },
         })
@@ -156,7 +160,17 @@ describe('Test todo with Neo4J Database interactions', () => {
         const { query } = createTestClient(server)
         let testUser = createJwt('secret')
 
-        addMultipleTodos(25, query, testUser)
+        //adding multipe todos with a random id (0-1000) and "newmessage" messages
+        await addMultipleTodos(25, query, testUser)
+
+        const res = await query({
+            query: GET_TODOS,
+            variables: {
+                FILTER_MODE: FILTER_MODE.ASC,
+            },
+        })
+
+        //console.log(res.data)
     })
     //
     //it('deletes a todo', async() => {
