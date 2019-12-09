@@ -153,6 +153,7 @@ describe('Test todo with Neo4J Database interactions', () => {
         })
 
         expect(res.data.todo.message).toEqual('newmessage')
+        await driver.close()
     })
     it('gets all todos in the DB ordered by ascending IDs', async () => {
         const driver = createNewDriver()
@@ -174,6 +175,7 @@ describe('Test todo with Neo4J Database interactions', () => {
         for (let i = 0; i < todos.length - 1; i++) {
             expect(todos[i].id <= todos[i + 1].id).toEqual(true)
         }
+        await driver.close()
     })
     //
     //it('deletes a todo', async() => {
