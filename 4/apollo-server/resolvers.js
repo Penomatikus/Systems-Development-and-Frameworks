@@ -1,13 +1,14 @@
 import GraphQLJSON from 'graphql-type-json'
-import { async } from 'rxjs/internal/scheduler/async'
 import { decodeJwt } from './utils/jwtCreator'
 
 export default {
     JSON: GraphQLJSON,
 
     Query: {
-        hello: (root, { name }) => `Hello ${name || 'World'}!`,
-        todos: (root, args, { dataSources }) => dataSources.ds.getAllTodos(),
+        todos: async (root, { FILTER_MODE }, { dataSources }) => {
+            let todos = await dataSources.ds.getAllTodos(FILTER_MODE)
+            return todos
+        },
         todosForUser: (root, { userAuth }, { dataSources }) => {
             if (decodeJwt(userAuth, 'secret')) {
                 return dataSources.ds.getTodosForUser(userAuth)
