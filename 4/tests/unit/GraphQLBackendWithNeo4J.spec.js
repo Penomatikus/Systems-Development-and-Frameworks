@@ -172,6 +172,9 @@ describe('Test todo with Neo4J Database interactions', () => {
         })
         let todos = res.data.todos
 
+        for (let i = 0; i < todos.length - 1; i++) {
+            expect(todos[i].id <= todos[i + 1].id).toEqual(true)
+        }
         await driver.close()
     })
     //
