@@ -169,8 +169,11 @@ describe('Test todo with Neo4J Database interactions', () => {
                 FILTER_MODE: FILTER_MODE.ASC,
             },
         })
+        let todos = res.data.todos
 
-        //console.log(res.data)
+        for (let i = 0; i < todos.length - 1; i++) {
+            expect(todos[i].id <= todos[i + 1].id).toEqual(true)
+        }
     })
     //
     //it('deletes a todo', async() => {
