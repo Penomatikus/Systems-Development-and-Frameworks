@@ -1,17 +1,13 @@
-import { driver } from 'neo4j-driver'
-import { async } from 'rxjs/internal/scheduler/async'
-var neo4j = require('neo4j-driver')
-
 const { DataSource } = require('apollo-datasource')
 
-function searchelement(mok, id) {
-    for (var i = 0; i < mok.length; i++) {
-        if (mok[i].id == id) {
-            return mok[i]
-        }
-    }
-    return 'findTodo: element not found'
-}
+// function searchelement(mok, id) {
+//   for (var i = 0; i < mok.length; i++) {
+//     if (mok[i].id == id) {
+//       return mok[i];
+//     }
+//   }
+//   return "findTodo: element not found";
+// }
 
 function filterTodos(mok, userAuth) {
     var retArray = []
@@ -45,7 +41,7 @@ export class TodoNeo4JAPI extends DataSource {
         }
     }
 
-    async findTodo(id, userAuth) {
+    async findTodo(id) {
         const driver = this.store
         const session = driver.session()
         let foundTodo
