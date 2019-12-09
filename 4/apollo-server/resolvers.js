@@ -8,36 +8,31 @@ export default {
   Query: {
     hello: (root, { name }) => `Hello ${name || "World"}!`,
     todos: (root, args, { dataSources }) => dataSources.ds.getAllTodos(),
-    todosForUser: (root, {userAuth}, { dataSources }) => {
-      if(decodeJwt(userAuth, "secret")) {
-        return dataSources.ds.getTodosForUser(userAuth)
+    todosForUser: (root, { userAuth }, { dataSources }) => {
+      if (decodeJwt(userAuth, "secret")) {
+        return dataSources.ds.getTodosForUser(userAuth);
       }
-      return [{message:"SECRET NOT VALID"}]
+      return [{ message: "SECRET NOT VALID" }];
     },
-    todo: async (root, { id }, { dataSources}) => { 
+    todo: async (root, { id }, { dataSources }) => {
       let debugtodo = await dataSources.ds.findTodo(id);
-      return debugtodo
+      return debugtodo;
     }
   },
 
   Mutation: {
-    myMutation: (root, args, context) => {
-      const message = "My mutation completed!";
-      context.pubsub.publish("hey", { mySub: message });
-      return message;
-    },
 
     addTodo: async (root, { id, newMessage, userAuth }, { dataSources }) => {
       const todo = {
         id: id,
-        message: newMessage            
-      }; 
+        message: newMessage
+      };
 
-      if(decodeJwt(userAuth, "secret")) {
+      if (decodeJwt(userAuth, "secret")) {
         await dataSources.ds.addTodo(todo, userAuth);
         return todo;
       }
-      
+
       return undefined;
     },
 
