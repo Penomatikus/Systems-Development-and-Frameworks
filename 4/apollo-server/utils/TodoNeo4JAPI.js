@@ -48,7 +48,7 @@ export class TodoNeo4JAPI extends DataSource {
         }
     }
 
-    declareFilter(FILTER_MODE) {
+    declareFilter(FILTER_MODE, skip, limit) {
         console.log('FILTERMODE: ' + FILTER_MODE)
         let filter
         switch (String(FILTER_MODE)) {
@@ -69,6 +69,13 @@ export class TodoNeo4JAPI extends DataSource {
                 break
             }
         }
+        if (skip != -1){
+        filter += ` SKIP ${skip}`
+}
+        if (limit != -1){
+        filter += ` LIMIT ${limit}`
+}
+
         return filter
     }
 
@@ -95,10 +102,37 @@ export class TodoNeo4JAPI extends DataSource {
         return foundTodo
     }
 
-    async getAllTodos(FILTER_MODE) {
+//TODO
+async getDependencies(id) {
+        const driver = this.store
+        const session = driver.session()
+        let foundTodo
+
+        try {
+            await session
+                .run(`MATCH (:Todo { id: ${id} })-->(todo) RETURN todo`)
+                .then(result => {
+                    const node = result.records[0].get('todo')
+                    foundTodo = this.nodeToTodoObject(node)
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            session.close()
+        }
+        return foundTodo
+    }
+
+
+
+
+    async getAllTodos(FILTER_MODE, start, limit) {
         var session = this.store.session()
         let allTodos = []
-        let filter = this.declareFilter(FILTER_MODE)
+        let filter = this.declareFilter(FILTER_MODE, start, limit)
         console.log(filter)
 
         try {
@@ -126,8 +160,20 @@ export class TodoNeo4JAPI extends DataSource {
         return filterTodos(this.store, userAuth)
     }
 
-    deleteTodo(id) {
-        return this.store.splice(this.store.indexOf({ id: id }), 1)
+    async deleteTodo(id) {
+    const driver = this.store
+    const session = driver.session()     
+    
+    try {
+      await session.run(`match (n) WHERE n.id = ${id} detach delete n`)
+        .catch(error => { console.log(error)})
+    } catch (error) {
+      console.log(error)
+    } finally {
+      session.close()
+    }
+
+       
     }
 
     async deleteAll() {
@@ -220,6 +266,30 @@ async userExists(userAuth){
             session.close()
         }
         return updatedTodo
+    }
+
+
+   async addToDoDependency(firstID, secondID) {
+        const driver = this.store
+        const session = driver.session()
+
+        try {
+            await session
+                .run(`
+MATCH (todo1:Todo ${firstID}), (todo2:Todo ${secondID})
+WHERE NOT todo1.id = todo2.id
+MERGE (todo1)-[r:DEPENDS_ON]->(todo2)
+RETURN todo1.message, type(r), todo2.message
+`)
+                .catch(error => {
+                    console.log(error)
+                })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            session.close()
+        }
+
     }
 }
 

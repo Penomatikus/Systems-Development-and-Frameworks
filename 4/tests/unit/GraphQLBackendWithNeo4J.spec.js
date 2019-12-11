@@ -32,11 +32,17 @@ const UPDATE_TODO = gql`
     }
 `
 
-// const DELETE_TODO = gql`
-//   mutation deleteTodo($id: Int!) {
-//     deleteTodo(id: $id)
-//   }
-// `;
+const ADD_DEPENDENCY = gql`
+    mutation addToDoDependency($id: Int!, $dependencyId: Int!) {
+        addToDoDependency(id: $id, dependencyId: $dependencyId)
+    }
+`
+
+const DELETE_TODO = gql`
+   mutation deleteTodo($id: Int!) {
+     deleteTodo(id: $id)
+   }
+ `
 
 const GET_TODO = gql`
     query todo($id: Int!) {
@@ -203,6 +209,55 @@ describe('Test todo with Neo4J Database interactions', () => {
 	
     });
 
+
+
+
+it('Adds dependencies to a ToDo', async() => {
+
+    const server = new ApolloServer({
+        typeDefs,
+        resolvers,
+        dataSources: () => ({
+            ds: serverds
+        }),
+        mockEntireSchema: false,
+        formatError: (err) => {
+            console.log(err);
+            return err
+        }
+    });
+
+        const {
+            query
+        } = createTestClient(server);
+
+        let testUser = createJwt("secret")
+
+        await addstuff(query, testUser);
+        await query({
+            query: ADD_DEPENDENCY,
+            variables: { id: 2, dependencyId: 4 },
+        })
+
+        const res = await query({
+            query: GET_TODO,
+            variables: { id: 2 },
+        })
+
+
+        //console.log(res)
+        expect(res.data.todo.message).toEqual("newmessage");
+        await serverds.deleteAll();
+
+	
+    });
+
+
+
+
+
+
+
     it('gets all todos in the DB ordered by ascending IDs', async () => {
         //const driver = createNewDriver()
         const server = createNewServer(driver)
@@ -226,51 +281,51 @@ describe('Test todo with Neo4J Database interactions', () => {
         }
      
         await serverds.deleteAll()
-        await driver.close()
+        
     })
 
 
-    //
-    //it('deletes a todo', async() => {
-    //
-    //    var tmpMock = []
-    //
-    //        const server = new ApolloServer({
-    //            typeDefs,
-    //            resolvers,
-    //            dataSources: () => ({
-    //                ds: new TodoAPI(tmpMock)
-    //            }),
-    //            mockEntireSchema: false,
-    //            formatError: (err) => {
-    //                console.log(err.stack);
-    //                return err
-    //            }
-    //        });
-    //
-    //        const {
-    //            query
-    //        } = createTestClient(server);
-    //
-    //        let testUser = createJwt("secret")
-    //
-    //        const addresult = await query({
-    //            query: ADD_TODO,
-    //            variables: { id: 6 , newMessage: "newentry", userAuth: testUser }
-    //        });
-    //
-    //        const delresult = await query({
-    //            query: DELETE_TODO,
-    //            variables: {
-    //                id: 6
-    //            }
-    //        });
-    //
-    //        const res = await query({
-    //            query: GET_TODOS,
-    //            variables: { }
-    //        });
-    //        //console.log(res)
-    //        expect(res.data.todos).toEqual(MOCK_UP_TEST_RESULTS);
-    //    });
+
+it('deletes a todo', async() => {
+
+       const server = new ApolloServer({
+            typeDefs,
+            resolvers,
+           dataSources: () => ({
+                ds: serverds
+            }),
+            mockEntireSchema: false,
+            formatError: (err) => {
+                console.log(err.stack);
+               return err
+            }
+        });
+
+        const {
+            query
+        } = createTestClient(server);
+
+        let testUser = createJwt("secret")
+
+        const addresult = await query({
+            query: ADD_TODO,
+           variables: { id: 6 , newMessage: "newentry", userAuth: testUser }
+        });
+
+       const delresult = await query({
+             query: DELETE_TODO,
+            variables: {
+               id: 6
+            }
+        });
+
+        const res = await query({
+            query: GET_TODOS,
+           variables: {
+              FILTER_MODE: FILTER_MODE.NONE,
+ }
+        });
+        //console.log(res)
+        expect(res.data.todos.length).toEqual(0);
+    });
 })
