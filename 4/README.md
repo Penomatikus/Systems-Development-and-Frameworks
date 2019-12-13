@@ -49,7 +49,7 @@ Test-drive the development of a GraphQL server.
    but at least one of your mutations and queries should access the database
    directly with [Neo4j JS driver](https://github.com/neo4j/neo4j-javascript-driver)
    and a custom cypher statement.
-- [ ] 3. Your objects in the database should be connected in some way. If you have a
+- [x] 3. Your objects in the database should be connected in some way. If you have a
    relationship like
    ```
    (:User)<-[:ASSIGNED]-(:Todo)
