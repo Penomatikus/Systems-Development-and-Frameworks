@@ -39,10 +39,10 @@ const ADD_DEPENDENCY = gql`
 `
 
 const DELETE_TODO = gql`
-   mutation deleteTodo($id: Int!) {
-     deleteTodo(id: $id)
-   }
- `
+    mutation deleteTodo($id: Int!) {
+        deleteTodo(id: $id)
+    }
+`
 
 const GET_TODO = gql`
     query todo($id: Int!) {
@@ -72,7 +72,7 @@ const GET_TODOS = gql`
 // `;
 
 function createNewDriver() {
-    return neo4j.driver(
+    return new neo4j.driver(
         'bolt://localhost:7687',
         neo4j.auth.basic('neo4j', '123456789')
     )
@@ -93,14 +93,13 @@ function createNewServer(driver) {
     })
 }
 
-// No need to make IDs unique here, since testing (ID-Range 0-1000)
 async function addMultipleTodos(times, testClientQuery, jwtToken) {
     for (let i = 0; i < times; i++) {
         await testClientQuery({
             query: ADD_TODO,
             variables: {
-                id: Math.floor(Math.random() * 1000),
-                newMessage: 'n1000',
+                id: i,
+                newMessage: 'newentry' + i,
                 userAuth: jwtToken,
             },
         })
@@ -109,50 +108,18 @@ async function addMultipleTodos(times, testClientQuery, jwtToken) {
 
 //##########################################################################
 
-
-async function addstuff(query, testUser) {
-
-for (let i = 0; i<5;i++){
-const addresult = await query({
-            query: ADD_TODO,
-            variables: { id: i , newMessage: "newentry"+i, userAuth: testUser}
-        });
-
-}
-}
-
-var driver = neo4j.driver(
-            'bolt://localhost:7687',
-            neo4j.auth.basic('neo4j', 'ggs')
-        ) 
- 
-        const serverds = new TodoNeo4JAPI(driver);
-     
+afterAll(async () => {
+    await new TodoNeo4JAPI(createNewDriver()).deleteAll()
+})
 
 describe('Test todo with Neo4J Database interactions', () => {
     it('adds a todo and tries to retrieve it', async () => {
-        
-        const server = new ApolloServer({
-            typeDefs,
-            resolvers,
-            dataSources: () => ({
-                ds: serverds
-            }),
-            mockEntireSchema: false,
-            formatError: (err) => {
-                console.log(err);
-                return err
-            }
-        });
+        const driver = createNewDriver()
+        const server = createNewServer(driver)
+        const { query } = createTestClient(server)
+        const testUser = createJwt('secret')
 
-        const {
-            query
-        } = createTestClient(server);
-
-        let testUser = createJwt("secret")
-
-        const addresult = await query({
-
+        await query({
             query: ADD_TODO,
             variables: { id: 10, newMessage: 'newentry', userAuth: testUser },
         })
@@ -160,37 +127,19 @@ describe('Test todo with Neo4J Database interactions', () => {
         const res = await query({
             query: GET_TODO,
             variables: {
-                id: 10
-            }
-        });
-        //console.log(server)
-        expect(res.data.todo.message).toEqual("newentry");
-        await serverds.deleteAll();
-        
-    });
+                id: 10,
+            },
+        })
+        expect(res.data.todo.message).toEqual('newentry')
+    })
 
-    it('updates a todo', async() => {
+    it('updates a todo', async () => {
+        const driver = createNewDriver()
+        const server = createNewServer(driver)
+        const { query } = createTestClient(server)
+        const testUser = createJwt('secret')
 
-    const server = new ApolloServer({
-        typeDefs,
-        resolvers,
-        dataSources: () => ({
-            ds: serverds
-        }),
-        mockEntireSchema: false,
-        formatError: (err) => {
-            console.log(err);
-            return err
-        }
-    });
-
-        const {
-            query
-        } = createTestClient(server);
-
-        let testUser = createJwt("secret")
-
-        await addstuff(query, testUser);
+        await addMultipleTodos(5, query, testUser)
         await query({
             query: UPDATE_TODO,
             variables: { id: 2, updateMessage: 'newmessage' },
@@ -201,39 +150,16 @@ describe('Test todo with Neo4J Database interactions', () => {
             variables: { id: 2 },
         })
 
+        expect(res.data.todo.message).toEqual('newmessage')
+    })
 
-        //console.log(res)
-        expect(res.data.todo.message).toEqual("newmessage");
-        await serverds.deleteAll();
+    it('adds dependencies to a ToDo', async () => {
+        const driver = createNewDriver()
+        const server = createNewServer(driver)
+        const { query } = createTestClient(server)
+        const testUser = createJwt('secret')
 
-	
-    });
-
-
-
-
-it('Adds dependencies to a ToDo', async() => {
-
-    const server = new ApolloServer({
-        typeDefs,
-        resolvers,
-        dataSources: () => ({
-            ds: serverds
-        }),
-        mockEntireSchema: false,
-        formatError: (err) => {
-            console.log(err);
-            return err
-        }
-    });
-
-        const {
-            query
-        } = createTestClient(server);
-
-        let testUser = createJwt("secret")
-
-        await addstuff(query, testUser);
+        await addMultipleTodos(5, query, testUser)
         await query({
             query: ADD_DEPENDENCY,
             variables: { id: 2, dependencyId: 4 },
@@ -244,28 +170,15 @@ it('Adds dependencies to a ToDo', async() => {
             variables: { id: 2 },
         })
 
-
-        //console.log(res)
-        expect(res.data.todo.message).toEqual("newmessage");
-        await serverds.deleteAll();
-
-	
-    });
-
-
-
-
-
-
+        expect(res.data.todo.message).toEqual('newmessage')
+    })
 
     it('gets all todos in the DB ordered by ascending IDs', async () => {
-        //const driver = createNewDriver()
+        const driver = createNewDriver()
         const server = createNewServer(driver)
         const { query } = createTestClient(server)
         let testUser = createJwt('secret')
 
-
-        //adding multipe todos with a random id (0-1000) and "newmessage" messages
         await addMultipleTodos(25, query, testUser)
 
         const res = await query({
@@ -279,53 +192,38 @@ it('Adds dependencies to a ToDo', async() => {
         for (let i = 0; i < todos.length - 1; i++) {
             expect(todos[i].id <= todos[i + 1].id).toEqual(true)
         }
-     
-        await serverds.deleteAll()
-        
     })
 
+    it('deletes a todo', async () => {
+        const driver = createNewDriver()
+        const server = createNewServer(driver)
+        const { query } = createTestClient(server)
+        const testUser = createJwt('secret')
 
+        let toBeDeleted = [
+            { id: 9999, newMessage: 'newentry', userAuth: testUser },
+        ]
 
-it('deletes a todo', async() => {
-
-       const server = new ApolloServer({
-            typeDefs,
-            resolvers,
-           dataSources: () => ({
-                ds: serverds
-            }),
-            mockEntireSchema: false,
-            formatError: (err) => {
-                console.log(err.stack);
-               return err
-            }
-        });
-
-        const {
-            query
-        } = createTestClient(server);
-
-        let testUser = createJwt("secret")
-
-        const addresult = await query({
+        await query({
             query: ADD_TODO,
-           variables: { id: 6 , newMessage: "newentry", userAuth: testUser }
-        });
+            variables: toBeDeleted[0],
+        })
 
-       const delresult = await query({
-             query: DELETE_TODO,
+        await query({
+            query: DELETE_TODO,
             variables: {
-               id: 6
-            }
-        });
+                id: 9999,
+            },
+        })
 
         const res = await query({
             query: GET_TODOS,
-           variables: {
-              FILTER_MODE: FILTER_MODE.NONE,
- }
-        });
-        //console.log(res)
-        expect(res.data.todos.length).toEqual(0);
-    });
+            variables: {
+                FILTER_MODE: FILTER_MODE.NONE,
+            },
+        })
+
+        //https://jestjs.io/docs/en/expect#expectarraycontainingarray
+        expect(res.data.todos).not.toEqual(expect.arrayContaining(toBeDeleted))
+    })
 })
