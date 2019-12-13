@@ -14,11 +14,12 @@ type Query {
     todosForUser(userAuth: String!): [ToDo]
     "One Todo query for testing"
     todo(id: Int!): ToDo
+    getToDoDependencies(id: Int!): [ToDo]
 }
 
 type Mutation {
     myMutation: String!
-    "Add a message and publish it on 'todos'"
+    "Add a message and publish it on todos'"
     addTodo(id: Int!, newMessage: String!, userAuth: String!): ToDo!
     "Updates a todo with the given ID"
     updateTodo(id: Int!, updateMessage: String!): String!

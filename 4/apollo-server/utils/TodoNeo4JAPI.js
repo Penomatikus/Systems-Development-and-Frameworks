@@ -247,7 +247,7 @@ export class TodoNeo4JAPI extends DataSource {
         const session = driver.session()
         let updatedTodo
 
-        const cypher = `MATCH (todo:Todo {id: ${id}}) SET todo.message = '${newmessage}' return todo as todo`
+        const cypher = `MERGE (todo:Todo {id: ${id}}) SET todo.message = '${newmessage}' return todo as todo`
         try {
             await session
                 .run(cypher)
@@ -288,6 +288,35 @@ RETURN todo1.message, type(r), todo2.message
         } finally {
             session.close()
         }
+    }
+
+    async getToDoDependencies(firstID) {
+        const driver = this.store
+        const session = driver.session()
+
+        let todos = []
+
+        try {
+            await session
+                .run(
+                    `MATCH (todo:Todo { id: ${firstID} })-[:DEPENDS_ON]->(todos) RETURN todos`
+                )
+                .then(result => {
+                    result.records.forEach(element => {
+                        todos.push(
+                            this.nodeToTodoObject(element.get('todos'))
+                        )
+                    })
+                })
+                .catch(error => {
+                    console.log('ERROR in getToDoDependencies(): ' + error)
+                })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            session.close()
+        }
+        return todos
     }
 }
 

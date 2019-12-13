@@ -38,6 +38,15 @@ const ADD_DEPENDENCY = gql`
     }
 `
 
+const GET_DEPENDENCIES = gql`
+    query getToDoDependencies($id: Int!) {
+        getToDoDependencies(id: $id){
+            id
+            message
+        }
+    }
+`
+
 const DELETE_TODO = gql`
     mutation deleteTodo($id: Int!) {
         deleteTodo(id: $id)
@@ -74,7 +83,7 @@ const GET_TODOS = gql`
 function createNewDriver() {
     return new neo4j.driver(
         'bolt://localhost:7687',
-        neo4j.auth.basic('neo4j', '123456789')
+        neo4j.auth.basic('neo4j', 'ggs')
     )
 }
 
@@ -108,7 +117,7 @@ async function addMultipleTodos(times, testClientQuery, jwtToken) {
 
 //##########################################################################
 
-afterAll(async () => {
+beforeEach(async () => {
     await new TodoNeo4JAPI(createNewDriver()).deleteAll()
 })
 
@@ -159,18 +168,22 @@ describe('Test todo with Neo4J Database interactions', () => {
         const { query } = createTestClient(server)
         const testUser = createJwt('secret')
 
-        await addMultipleTodos(5, query, testUser)
+        await addMultipleTodos(3, query, testUser)
         await query({
             query: ADD_DEPENDENCY,
-            variables: { id: 2, dependencyId: 4 },
+            variables: { id: 0, dependencyId: 1 },
+        })
+        await query({
+            query: ADD_DEPENDENCY,
+            variables: { id: 0, dependencyId: 2 },
         })
 
         const res = await query({
-            query: GET_TODO,
-            variables: { id: 2 },
+            query: GET_DEPENDENCIES,
+            variables: { id: 0 },
         })
 
-        expect(res.data.todo.message).toEqual('newmessage')
+        expect(res.data.getToDoDependencies.length).toEqual(2)
     })
 
     it('gets all todos in the DB ordered by ascending IDs', async () => {
@@ -215,7 +228,7 @@ describe('Test todo with Neo4J Database interactions', () => {
         let todos = res.data.todos
 
         expect(todos.length).toEqual(10)
-
+        
         for (let i = 0; i < todos.length - 1; i++) {
             expect(todos[i].id <= todos[i + 1].id).toEqual(true)
         }

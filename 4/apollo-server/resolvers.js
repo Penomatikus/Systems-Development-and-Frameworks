@@ -23,6 +23,13 @@ export default {
             let debugtodo = await dataSources.ds.findTodo(id)
             return debugtodo
         },
+        getToDoDependencies: async (
+            root,
+            { id},
+            { dataSources }
+        ) => {
+            return await dataSources.ds.getToDoDependencies(id)
+        },
     },
 
     Mutation: {

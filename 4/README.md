@@ -64,12 +64,12 @@ Test-drive the development of a GraphQL server.
      }
    }
    ```
-- [ ] 4. Implement a filter (`WHERE` in cypher).
+- [x] 4. Implement a filter (`WHERE` in cypher).
    which returns another custom type. E.g. a todo has an assignee, see point 6.
 - [x] 5. Implement some ordering (`ORDER BY` in cypher).
-- [ ] 6. Implement pagination (`FIRST` and `LIMIT` in cypher).
-- [ ] 7. Implement an update mutation that uses `MERGE`.
-- [ ] 8. Write backend tests for all of the above.
+- [x] 6. Implement pagination (`FIRST` and `LIMIT` in cypher).
+- [x] 7. Implement an update mutation that uses `MERGE`.
+- [x] 8. Write backend tests for all of the above.
 - [ ] 9. Request a review from @roschaefer.
 - [ ] 10. Request a review from sb. else.
 
