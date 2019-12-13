@@ -5,8 +5,12 @@ export default {
     JSON: GraphQLJSON,
 
     Query: {
-        todos: async (root, { FILTER_MODE, skip, limit}, { dataSources }) => {
-            let todos = await dataSources.ds.getAllTodos(FILTER_MODE, skip, limit)
+        todos: async (root, { FILTER_MODE, skip, limit }, { dataSources }) => {
+            let todos = await dataSources.ds.getAllTodos(
+                FILTER_MODE,
+                skip,
+                limit
+            )
             return todos
         },
         todosForUser: (root, { userAuth }, { dataSources }) => {
@@ -46,9 +50,12 @@ export default {
             return `todo with ID: ${id} was updated to ${updateMessage}`
         },
 
-        addToDoDependency: async (root, { id, dependencyId }, { dataSources }) => {
+        addToDoDependency: async (
+            root,
+            { id, dependencyId },
+            { dataSources }
+        ) => {
             await dataSources.ds.addToDoDependency(id, dependencyId)
-
         },
 
         deleteTodo: (root, { id }, { dataSources }) => {
