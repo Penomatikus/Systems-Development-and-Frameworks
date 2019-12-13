@@ -49,7 +49,6 @@ export class TodoNeo4JAPI extends DataSource {
     }
 
     declareFilter(FILTER_MODE, skip, limit) {
-        console.log('FILTERMODE: ' + FILTER_MODE)
         let filter
         switch (String(FILTER_MODE)) {
             case 'asc': {
@@ -69,12 +68,12 @@ export class TodoNeo4JAPI extends DataSource {
                 break
             }
         }
-        if (skip != -1){
-        filter += ` SKIP ${skip}`
-}
-        if (limit != -1){
-        filter += ` LIMIT ${limit}`
-}
+        if (skip != -1) {
+            filter += ` SKIP ${skip}`
+        }
+        if (limit != -1) {
+            filter += ` LIMIT ${limit}`
+        }
 
         return filter
     }
@@ -92,7 +91,7 @@ export class TodoNeo4JAPI extends DataSource {
                     foundTodo = this.nodeToTodoObject(node)
                 })
                 .catch(error => {
-                    console.log(error)
+                    console.log('ERROR in findTodo(): ' + error)
                 })
         } catch (error) {
             console.log(error)
@@ -102,8 +101,8 @@ export class TodoNeo4JAPI extends DataSource {
         return foundTodo
     }
 
-//TODO
-async getDependencies(id) {
+    //TODO
+    async getDependencies(id) {
         const driver = this.store
         const session = driver.session()
         let foundTodo
@@ -116,7 +115,7 @@ async getDependencies(id) {
                     foundTodo = this.nodeToTodoObject(node)
                 })
                 .catch(error => {
-                    console.log(error)
+                    console.log('ERROR in getDependencies(): ' + error)
                 })
         } catch (error) {
             console.log(error)
@@ -126,14 +125,10 @@ async getDependencies(id) {
         return foundTodo
     }
 
-
-
-
     async getAllTodos(FILTER_MODE, start, limit) {
         var session = this.store.session()
         let allTodos = []
         let filter = this.declareFilter(FILTER_MODE, start, limit)
-        console.log(filter)
 
         try {
             await session
@@ -146,7 +141,7 @@ async getDependencies(id) {
                     })
                 })
                 .catch(error => {
-                    console.log(error)
+                    console.log('ERROR in getAllTodos(): ' + error)
                 })
         } catch (error) {
             console.log(error)
@@ -161,74 +156,78 @@ async getDependencies(id) {
     }
 
     async deleteTodo(id) {
-    const driver = this.store
-    const session = driver.session()     
-    
-    try {
-      await session.run(`match (n) WHERE n.id = ${id} detach delete n`)
-        .catch(error => { console.log(error)})
-    } catch (error) {
-      console.log(error)
-    } finally {
-      session.close()
-    }
+        const driver = this.store
+        const session = driver.session()
 
-       
+        try {
+            await session
+                .run(`MATCH (n) WHERE n.id = ${id} detach delete n`)
+                .catch(error => {
+                    console.log('ERROR in deleteTodo(): ' + error)
+                })
+        } catch (error) {
+            console.log(error)
+        } finally {
+            session.close()
+        }
     }
 
     async deleteAll() {
-    const driver = this.store
-    const session = driver.session()     
-    
-    try {
-      await session.run(`MATCH (n) DETACH DELETE n;`)
-        .catch(error => { console.log(error)})
-    } catch (error) {
-      console.log(error)
-    } finally {
-      session.close()
+        const driver = this.store
+        const session = driver.session()
+
+        try {
+            await session.run(`MATCH (n) DETACH DELETE n;`).catch(error => {
+                console.log(error)
+            })
+        } catch (error) {
+            console.log('ERROR in deleteAll(): ' + error)
+        } finally {
+            session.close()
+        }
     }
-  }
 
+    async userExists(userAuth) {
+        const driver = this.store
+        const session = driver.session()
+        let exists = false
 
-async userExists(userAuth){
-    const driver = this.store  
-    const session = driver.session()
-    let exists = false;
-
-    const cypher = `match (n:User {userAuth: '${userAuth}'}) return n`;
-    try {
-      await session.run(cypher).then(result => { 
-        const nodecount = result.records.length;console.log(nodecount) ;
-        if (nodecount > 0){ exists = true;}
-      })
-    } catch(error) { 
-      //console.log("ERROR: " + error)
-    } finally {
-        session.close()
+        const cypher = `match (n:User {userAuth: '${userAuth}'}) return n`
+        try {
+            await session.run(cypher).then(result => {
+                const nodecount = result.records.length
+                if (nodecount > 0) {
+                    exists = true
+                }
+            })
+        } catch (error) {
+            console.log('ERROR in userExists(): ' + error)
+        } finally {
+            session.close()
+        }
+        return exists
     }
-    return exists;
-}
 
-  async addUser(userAuth) {
-    const driver = this.store  
-    const session = driver.session()    
-    
-    const cypher = `CREATE (n:User { userAuth: '${userAuth}' })`;
-    try {
-      await session.run(cypher).catch(e => { console.log(e); })
-    } catch(error) { 
-      console.log("ERROR: " + error)
-    } finally {
-        session.close()
+    async addUser(userAuth) {
+        const driver = this.store
+        const session = driver.session()
+
+        const cypher = `CREATE (n:User { userAuth: '${userAuth}' })`
+        try {
+            await session.run(cypher).catch(e => {
+                console.log(e)
+            })
+        } catch (error) {
+            console.log('ERROR in addUser(): ' + error)
+        } finally {
+            session.close()
+        }
     }
-  }
-
 
     async addTodo(todo, userAuth) {
         const driver = this.store
-        if (await this.userExists(userAuth) == false){
-           await this.addUser(userAuth);
+        if ((await this.userExists(userAuth)) == false) {
+            await this.addUser(userAuth)
         }
 
         const session = driver.session()
@@ -238,7 +237,7 @@ async userExists(userAuth){
                 console.log(e)
             })
         } catch (error) {
-            console.log('ERROR: ' + error)
+            console.log('ERROR in addTodo(): ' + error)
         } finally {
             session.close()
         }
@@ -261,35 +260,35 @@ async userExists(userAuth){
                     console.log(error)
                 })
         } catch (error) {
-            console.log('ERROR: ' + error)
+            console.log('ERROR in updateTodo(): ' + error)
         } finally {
             session.close()
         }
         return updatedTodo
     }
 
-
-   async addToDoDependency(firstID, secondID) {
+    async addToDoDependency(firstID, secondID) {
         const driver = this.store
         const session = driver.session()
 
         try {
             await session
-                .run(`
-MATCH (todo1:Todo ${firstID}), (todo2:Todo ${secondID})
-WHERE NOT todo1.id = todo2.id
-MERGE (todo1)-[r:DEPENDS_ON]->(todo2)
+                .run(
+                    `
+MATCH (todo1:Todo {id: ${firstID}}), (todo2:Todo {id: ${secondID}}) 
+WHERE NOT todo1.id = todo2.id 
+MERGE (todo1)-[r:DEPENDS_ON]->(todo2) 
 RETURN todo1.message, type(r), todo2.message
-`)
+`
+                )
                 .catch(error => {
-                    console.log(error)
+                    console.log('ERROR in addToDoDependency(): ' + error)
                 })
         } catch (error) {
             console.log(error)
         } finally {
             session.close()
         }
-
     }
 }
 
