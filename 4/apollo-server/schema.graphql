@@ -10,7 +10,7 @@ type Query {
     "Test query with a parameter"
     hello(name: String): String!
     "List of todos in the db"
-    todos(FILTER_MODE: String!, skip: Int=-1, limit: Int=-1): [ToDo]
+    todos(FILTER_MODE: String!, skip: Int = -1, limit: Int = -1): [ToDo]
     todosForUser(userAuth: String!): [ToDo]
     "One Todo query for testing"
     todo(id: Int!): ToDo
