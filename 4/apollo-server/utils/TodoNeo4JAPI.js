@@ -129,7 +129,6 @@ export class TodoNeo4JAPI extends DataSource {
         var session = this.store.session()
         let allTodos = []
         let filter = this.declareFilter(FILTER_MODE, start, limit)
-
         try {
             await session
                 .run(`MATCH (todo:Todo) return todo ${filter}`)

@@ -54,8 +54,8 @@ const GET_TODO = gql`
 `
 
 const GET_TODOS = gql`
-    query todos($FILTER_MODE: String!) {
-        todos(FILTER_MODE: $FILTER_MODE) {
+    query todos($FILTER_MODE: String!, $skip: Int!, $limit: Int!) {
+        todos(FILTER_MODE: $FILTER_MODE, skip: $skip, limit: $limit) {
             id
             message
         }
@@ -185,9 +185,36 @@ describe('Test todo with Neo4J Database interactions', () => {
             query: GET_TODOS,
             variables: {
                 FILTER_MODE: FILTER_MODE.ASC,
+                skip: -1,
+                limit: -1,
             },
         })
         let todos = res.data.todos
+
+        for (let i = 0; i < todos.length - 1; i++) {
+            expect(todos[i].id <= todos[i + 1].id).toEqual(true)
+        }
+    })
+
+    it('gets all todos in the DB ordered by ascending IDs with paging', async () => {
+        const driver = createNewDriver()
+        const server = createNewServer(driver)
+        const { query } = createTestClient(server)
+        let testUser = createJwt('secret')
+
+        await addMultipleTodos(25, query, testUser)
+
+        const res = await query({
+            query: GET_TODOS,
+            variables: {
+                FILTER_MODE: FILTER_MODE.ASC,
+                skip: 1,
+                limit: 10,
+            },
+        })
+        let todos = res.data.todos
+
+        expect(todos.length).toEqual(10)
 
         for (let i = 0; i < todos.length - 1; i++) {
             expect(todos[i].id <= todos[i + 1].id).toEqual(true)
@@ -220,6 +247,8 @@ describe('Test todo with Neo4J Database interactions', () => {
             query: GET_TODOS,
             variables: {
                 FILTER_MODE: FILTER_MODE.NONE,
+                skip: -1,
+                limit: -1,
             },
         })
 
