@@ -22,9 +22,9 @@ type Mutation {
     "Add a message and publish it on todos'"
     addTodo(id: Int!, newMessage: String!, userAuth: String!): ToDo!
     "Updates a todo with the given ID"
-    updateTodo(id: Int!, updateMessage: String!): String!
+    updateTodo(id: Int!, updateMessage: String!, userAuth: String!): String!
     "Delets a todo with the given ID"
-    deleteTodo(id: Int!): String!
+    deleteTodo(id: Int!, userAuth: String!): String!
     "Add dependency"
     addToDoDependency(id: Int!, dependencyId: Int!): Boolean
 }

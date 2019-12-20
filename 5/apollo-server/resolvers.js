@@ -1,6 +1,8 @@
 import GraphQLJSON from 'graphql-type-json'
 import { decodeJwt } from './utils/jwtCreator'
 
+
+
 export default {
     JSON: GraphQLJSON,
 
@@ -51,7 +53,7 @@ export default {
             return undefined
         },
 
-        updateTodo: async (root, { id, updateMessage }, { dataSources }) => {
+        updateTodo: async (root, { id, updateMessage, userAuth }, { dataSources }) => {
             await dataSources.ds.updateTodo(id, updateMessage)
 
             return `todo with ID: ${id} was updated to ${updateMessage}`

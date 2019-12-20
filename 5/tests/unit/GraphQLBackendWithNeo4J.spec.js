@@ -8,6 +8,11 @@ import fs from 'fs'
 import path from 'path'
 import resolvers from '../../apollo-server/resolvers'
 
+import { applyMiddleware } from 'graphql-middleware'
+import { makeExecutableSchema } from 'graphql-tools'
+import { rule, shield, and, or, not } from 'graphql-shield'
+
+
 var neo4j = require('neo4j-driver')
 const { ApolloServer, gql } = require('apollo-server')
 const { createTestClient } = require('apollo-server-testing')
@@ -27,8 +32,8 @@ const ADD_TODO = gql`
 `
 
 const UPDATE_TODO = gql`
-    mutation updateTodo($id: Int!, $updateMessage: String!) {
-        updateTodo(id: $id, updateMessage: $updateMessage)
+    mutation updateTodo($id: Int!, $updateMessage: String!, $userAuth: String!) {
+        updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth)
     }
 `
 
@@ -48,8 +53,8 @@ const GET_DEPENDENCIES = gql`
 `
 
 const DELETE_TODO = gql`
-    mutation deleteTodo($id: Int!) {
-        deleteTodo(id: $id)
+    mutation deleteTodo($id: Int!, $userAuth: String!) {
+        deleteTodo(id: $id, userAuth: $userAuth)
     }
 `
 
@@ -88,12 +93,32 @@ function createNewDriver() {
 }
 
 function createNewServer(driver) {
+    
+    const schema = makeExecutableSchema({ typeDefs, resolvers })
+    
+    const isAuthenticated = rule({ cache: 'contextual' })(
+        async (parent, args, ctx, info) => {
+            const todo = await ctx.dataSources.ds.findTodo(args.id)
+          return (typeof todo !=='undefined' && args.userAuth == todo.userAuth)
+        },
+      )
+
+    const permissions = shield({
+        Mutation: {
+          updateTodo: isAuthenticated,
+          deleteTodo: isAuthenticated,
+          //addTodo: or (isAuthenticated, not (isAuthenticated))
+        }
+    })
+    
     return new ApolloServer({
-        typeDefs,
-        resolvers,
+        //typeDefs,
+        schema: schema,
+        //resolvers,
         dataSources: () => ({
             ds: new TodoNeo4JAPI(driver),
         }),
+        middlewares: applyMiddleware(schema, permissions),
         mockEntireSchema: false,
         formatError: err => {
             console.log(err)
@@ -151,7 +176,7 @@ describe('Test todo with Neo4J Database interactions', () => {
         await addMultipleTodos(5, query, testUser)
         await query({
             query: UPDATE_TODO,
-            variables: { id: 2, updateMessage: 'newmessage' },
+            variables: { id: 2, updateMessage: 'newmessage', userAuth: testUser },
         })
 
         const res = await query({
@@ -253,6 +278,7 @@ describe('Test todo with Neo4J Database interactions', () => {
             query: DELETE_TODO,
             variables: {
                 id: 9999,
+                userAuth: testUser
             },
         })
 

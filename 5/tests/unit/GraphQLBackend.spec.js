@@ -29,14 +29,14 @@ const ADD_TODO = gql`
 `
 
 const UPDATE_TODO = gql`
-    mutation updateTodo($id: Int!, $updateMessage: String!) {
-        updateTodo(id: $id, updateMessage: $updateMessage)
+    mutation updateTodo($id: Int!, $updateMessage: String!, $userAuth: String!) {
+        updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth)
     }
 `
 
 const DELETE_TODO = gql`
-    mutation deleteTodo($id: Int!) {
-        deleteTodo(id: $id)
+    mutation deleteTodo($id: Int!, $userAuth: String!) {
+        deleteTodo(id: $id, userAuth: $userAuth)
     }
 `
 
@@ -181,6 +181,8 @@ describe('Test todo mutations', () => {
             { id: 2, message: 'b', userAuth: '0' },
         ]
 
+        let testUser = createJwt('secret')
+
         const server = new ApolloServer({
             typeDefs,
             resolvers,
@@ -198,7 +200,7 @@ describe('Test todo mutations', () => {
 
         const updateresult = await query({
             query: UPDATE_TODO,
-            variables: { id: 2, updateMessage: 'newmessage' },
+            variables: { id: 2, updateMessage: 'newmessage', userAuth: testUser },
         })
 
         //console.log(updateresult)
@@ -241,6 +243,7 @@ describe('Test todo mutations', () => {
             query: DELETE_TODO,
             variables: {
                 id: 6,
+                userAuth: testUser
             },
         })
 
