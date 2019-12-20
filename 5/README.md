@@ -1,4 +1,4 @@
-# SDaF EX 4
+# SDaF EX 5
 
 [![Build Status](https://travis-ci.com/Penomatikus/Systems-Development-and-Frameworks.svg?branch=build%2Fspammy)](https://travis-ci.com/Penomatikus/Systems-Development-and-Frameworks)
 
@@ -40,38 +40,56 @@ https://neo4j.com/docs/ogm-manual/current/introduction/
 # Notes 
 to run the test you have to turn off the server (test starts its own, otherwise the port is blocked)
 
-# Exercise \#4
 
-Test-drive the development of a GraphQL server.
+# Exercise \#5
 
-- [x] 1. Refactor your backend so that all the data is stored in[Neo4J](https://neo4j.com/)..  
-- [x] 2. You are allowed to use a query builder like [neo4j-graphql-js](https://github.com/neo4j-graphql/neo4j-graphql-js)
-   but at least one of your mutations and queries should access the database
-   directly with [Neo4j JS driver](https://github.com/neo4j/neo4j-javascript-driver)
-   and a custom cypher statement.
-- [x] 3. Your objects in the database should be connected in some way. If you have a
-   relationship like
-   ```
-   (:User)<-[:ASSIGNED]-(:Todo)
-   ```
-   then this query should return todos and user objects:
-   ```gql
-   query {
-     todos {
-       assignedTo {
-         name
-       }
-     }
-   }
-   ```
-- [x] 4. Implement a filter (`WHERE` in cypher).
-   which returns another custom type. E.g. a todo has an assignee, see point 6.
-- [x] 5. Implement some ordering (`ORDER BY` in cypher).
-- [x] 6. Implement pagination (`FIRST` and `LIMIT` in cypher).
-- [x] 7. Implement an update mutation that uses `MERGE`.
-- [x] 8. Write backend tests for all of the above.
-- [ ] 9. Request a review from @roschaefer.
-- [ ] 10. Request a review from sb. else.
+Learn how to use graphql-middlewares and start programming with NuxtJS.
+
+**Deadline is January 8th, 2020**
+
+- [x] 1. Optional tasks of exercise #3 are now required: Implement a permission
+   layer around your app. Use [graphql-shield](https://github.com/maticzav/graphql-shield)
+   and [graphql-middleware](https://github.com/prisma-labs/graphql-middleware).
+   Here is some inspiration how your test cases could look like:
+   ![Test cases for a permission layer](../3/permissions.png)
+- [] 2. Refactor your backend and frontend to show something different than just
+   todos and users. Be creative.
+- [] 3. Do a remote pair-programming session. You can choose any pairing partner,
+   either from our course or you can also ask our open-source community.
+- [] 4. Record your pair-programming session and publish it. Choose any software you
+   want. If you don't like being on the web, disable your webcam and save the
+   video as "unlisted". I recommend [PeerTube](https://joinpeertube.org/) to
+   host the video but there is also this commercial platform called YouTube as
+   an alternative. Send a link to your recorded video to htw@roschaefer.de.
+- [] 5. Write backend and frontend tests. Mock `this.$apollo` in your frontend tests
+   and respond with some mocked data or simulate an error.
+- [] 6. Request a review from @roschaefer.
+- [] 7. Request a review from sb. else.
+
+### Teaching goal
+
+The point of exercise 3. and 4. is to socialize and see how easy it is to find
+people from around the world who like to program with you and learn with you.
+Even a recording of a pairing session can be interesting learning material.
+Think of people who don't have access to public education, e.g. studying at a
+university like you do.
+
+Also, if you get stuck, people can help out. Often, developers wait for too long
+before they ask for help. It causes a lot of frustration and this particular
+situation happened for a team while working on exercise \#3.  Asking for help in
+our community chat is quick and usually there is always somebody around who can
+help out: https://human-connection.org/discord
+
+### Optional exercises
+
+1. Create a NuxtJS app and write a couple of different page components. Your
+   page component should have some level of nesting. Like `/nested.vue`,
+   `/nested/index.vue` and `/nested/_id.vue`.
+2. Connect your frontend with your backend via [apollo-module](https://github.com/nuxt-community/apollo-module).
+   So if you update a data object in your frontend, it sends a graphql mutation
+   to the backend.
+3. Make use of apollo-module's [authentication helpers](https://github.com/nuxt-community/apollo-module#authentication)
+   and have at least one page component which requires authentication.
 
 
 If you copy code from other groups, please give credit to them in your commit
