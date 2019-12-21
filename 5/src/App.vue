@@ -1,16 +1,17 @@
 <template>
     <div id="app">
-        <list
-            v-bind:todos="todos"
-            @update-todo="updateTodo"
-            @delete-todo="deleteTodo"
-        ></list>
+        <p>Username:</p>
+        <input type="text" v-model="username" id="userMock" value="userMock" />
+        <br />
+        <br />
+        <list v-bind:todos="todos" @update-todo="updateTodo" @delete-todo="deleteTodo"></list>
         <button v-on:click="newTodo" type="button">Add todo</button>
     </div>
 </template>
 
 <script>
 import List from './components/List.vue'
+import gql from 'graphql-tag'
 
 export default {
     name: 'app',
@@ -19,18 +20,50 @@ export default {
     },
     data: () => {
         return {
+            username: 'dummy',
             lastId: 3,
             todos: [
-                { id: '1', message: 'Foo' },
-                { id: '2', message: 'Bar' },
-                { id: '3', message: 'Baz' },
+                {
+                    id: '1',
+                    message: 'Foo',
+                    user: 'fakeUser_1',
+                    lastEdited: 'autogen.',
+                },
+                {
+                    id: '2',
+                    message: 'Bar',
+                    user: 'fakeUser_2',
+                    lastEdited: 'autogen.',
+                },
+                {
+                    id: '3',
+                    message: 'Baz',
+                    user: 'fakeUser_3',
+                    lastEdited: 'autogen.',
+                },
             ],
         }
     },
+    apollo: {
+        GET_TODO: gql`
+            query todo($id: Int!) {
+                todo(id: $id) {
+                    id
+                    message
+                }
+            }
+        `,
+    },
     methods: {
         newTodo: function() {
+            console.log(this.username)
             this.lastId++
-            this.todos.push({ id: this.lastId, message: 'new todo' })
+            this.todos.push({
+                id: this.lastId,
+                message: 'new todo',
+                user: this.username,
+                lastEdited: new Date().toLocaleString(),
+            })
             // console.log("New Todo: [" + this.lastId + "]")
         },
         updateTodo: function(passedTodo) {
@@ -39,6 +72,7 @@ export default {
             let index = this.todos.findIndex(todo => todo.id == passedTodo.id)
             // console.log("(Großeltern) \nUpdate das entsprechend gefundene Objekt in todos[]")
             this.todos[index] = passedTodo
+            this.todos[index].lastEdited = new Date().toLocaleString()
             // console.log("(Großeltern)\nTodo wurde geupdated: [" + this.todos[index].id + " | " + this.todos[index].message +"]")
         },
         deleteTodo: function(id) {

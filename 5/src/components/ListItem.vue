@@ -3,25 +3,29 @@
         <form id="test">
             <li v-if="editMode == true">
                 <input
+                    id="input"
                     type="text"
                     placeholder="enter new value"
                     v-on:input="updateMessage"
                 />
-                <button v-on:click="saveMe(todo)" type="button" id="save">
-                    Save
-                </button>
-                <button v-on:click="cancelMe" type="button" id="cancel">
-                    Cancel
-                </button>
+
+                <button v-on:click="saveMe(todo)" type="button" id="save">Save</button>
+                <button v-on:click="cancelMe" type="button" id="cancel">Cancel</button>
+                <label for="input">
+                    ( From: {{ todo.user }}
+                    <i>Last edited: {{ todo.lastEdited }}</i> )
+                </label>
             </li>
             <li v-else>
                 {{ todo.id }}. {{ todo.message }}
-                <button v-on:click="editMe" type="button" id="edit">
-                    Edit
-                </button>
-                <button v-on:click="deleteMe(todo)" type="button" id="delete">
-                    Delete
-                </button>
+                <button
+                    v-on:click="editMe"
+                    type="button"
+                    id="edit"
+                >Edit</button>
+                <button v-on:click="deleteMe(todo)" type="button" id="delete">Delete</button>
+                ( From: {{ todo.user }}
+                <i>Last edited: {{ todo.lastEdited }}</i> )
             </li>
         </form>
     </div>
