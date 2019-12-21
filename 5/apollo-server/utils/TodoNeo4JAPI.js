@@ -223,14 +223,14 @@ export class TodoNeo4JAPI extends DataSource {
         }
     }
 
-    async addTodo(todo, userAuth) {
+    async addTodo(todo, userAuth, lastEdited) {
         const driver = this.store
         if ((await this.userExists(userAuth)) == false) {
             await this.addUser(userAuth)
         }
 
         const session = driver.session()
-        const cypher = `CREATE (n:Todo { id: ${todo.id}, message: '${todo.message}', userAuth: '${userAuth}' })`
+        const cypher = `CREATE (n:Todo { id: ${todo.id}, message: '${todo.message}', userAuth: '${userAuth}', lastEdited: '${lastEdited}' })`
         try {
             await session.run(cypher).catch(e => {
                 console.log(e)
@@ -242,12 +242,12 @@ export class TodoNeo4JAPI extends DataSource {
         }
     }
 
-    async updateTodo(id, newmessage) {
+    async updateTodo(id, newmessage, lastEdited) {
         const driver = this.store
         const session = driver.session()
         let updatedTodo
 
-        const cypher = `MERGE (todo:Todo {id: ${id}}) SET todo.message = '${newmessage}' return todo as todo`
+        const cypher = `MERGE (todo:Todo {id: ${id}}) SET todo.message = '${newmessage}' SET todo.lastEdited = '${lastEdited}' return todo as todo`
         try {
             await session
                 .run(cypher)

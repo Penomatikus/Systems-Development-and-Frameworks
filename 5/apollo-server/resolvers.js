@@ -37,7 +37,7 @@ export default {
     Mutation: {
         addTodo: async (
             root,
-            { id, newMessage, userAuth },
+            { id, newMessage, userAuth, lastEdited },
             { dataSources }
         ) => {
             const todo = {
@@ -46,15 +46,15 @@ export default {
             }
 
             if (decodeJwt(userAuth, 'secret')) {
-                await dataSources.ds.addTodo(todo, userAuth)
+                await dataSources.ds.addTodo(todo, userAuth, lastEdited)
                 return todo
             }
 
             return undefined
         },
 
-        updateTodo: async (root, { id, updateMessage, userAuth }, { dataSources }) => {
-            await dataSources.ds.updateTodo(id, updateMessage)
+        updateTodo: async (root, { id, updateMessage, userAuth, lastEdited }, { dataSources }) => {
+            await dataSources.ds.updateTodo(id, updateMessage, lastEdited)
 
             return `todo with ID: ${id} was updated to ${updateMessage}`
         },

@@ -20,17 +20,19 @@ const typeDefs = fs.readFileSync(
 var mok = MOCK_UP_DATASOURCE_CONTENT
 
 const ADD_TODO = gql`
-    mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!) {
-        addTodo(id: $id, newMessage: $newMessage, userAuth: $userAuth) {
+    mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!, $lastEdited: String!) {
+        addTodo(id: $id, newMessage: $newMessage, userAuth: $userAuth, lastEdited: $lastEdited) {
             id
             message
+            userAuth
+            lastEdited
         }
     }
 `
 
 const UPDATE_TODO = gql`
-    mutation updateTodo($id: Int!, $updateMessage: String!, $userAuth: String!) {
-        updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth)
+    mutation updateTodo($id: Int!, $updateMessage: String!, $userAuth: String!, $lastEdited: String!) {
+        updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth, lastEdited: $lastEdited)
     }
 `
 
@@ -45,6 +47,8 @@ const GET_TODO = gql`
         todo(id: $id) {
             id
             message
+            userAuth
+            lastEdited
         }
     }
 `
@@ -53,6 +57,8 @@ const GET_TODOS = gql`
         todos(FILTER_MODE: $FILTER_MODE) {
             id
             message
+            userAuth
+            lastEdited
         }
     }
 `
@@ -62,6 +68,8 @@ const GET_TODOS_FOR_USER = gql`
         todosForUser(userAuth: $userAuth) {
             id
             message
+            userAuth
+            lastEdited
         }
     }
 `
@@ -160,7 +168,7 @@ describe('Test todo mutations', () => {
 
         const addresult = await query({
             query: ADD_TODO,
-            variables: { id: 10, newMessage: 'newentry', userAuth: testUser },
+            variables: { id: 10, newMessage: 'newentry', userAuth: testUser, lastEdited: new Date().toLocaleString()},
         })
 
         //console.log(addresult)
@@ -200,7 +208,7 @@ describe('Test todo mutations', () => {
 
         const updateresult = await query({
             query: UPDATE_TODO,
-            variables: { id: 2, updateMessage: 'newmessage', userAuth: testUser },
+            variables: { id: 2, updateMessage: 'newmessage', userAuth: testUser, lastEdited: new Date().toLocaleString() },
         })
 
         //console.log(updateresult)
@@ -236,7 +244,7 @@ describe('Test todo mutations', () => {
 
         const addresult = await query({
             query: ADD_TODO,
-            variables: { id: 6, newMessage: 'newentry', userAuth: testUser },
+            variables: { id: 6, newMessage: 'newentry', userAuth: testUser, lastEdited: new Date().toLocaleString() },
         })
 
         const delresult = await query({
@@ -277,13 +285,14 @@ describe('JWT tests', () => {
         const { query } = createTestClient(server)
 
         let testUser = createJwt('secret')
+        let lastEditedtime = new Date().toLocaleString()
 
         const addresult = await query({
             query: ADD_TODO,
-            variables: { id: 0, newMessage: 'bla', userAuth: testUser },
+            variables: { id: 0, newMessage: 'bla', userAuth: testUser, lastEdited: lastEditedtime },
         })
 
-        var result = [{ id: 0, message: 'bla' }]
+        var result = [{ id: 0, message: 'bla',userAuth:testUser, lastEdited: lastEditedtime }]
 
         const res = await query({
             query: GET_TODOS_FOR_USER,

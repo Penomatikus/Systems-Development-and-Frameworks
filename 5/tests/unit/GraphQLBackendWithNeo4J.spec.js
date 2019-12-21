@@ -22,10 +22,12 @@ const typeDefs = fs.readFileSync(
 )
 
 const ADD_TODO = gql`
-    mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!) {
-        addTodo(id: $id, newMessage: $newMessage, userAuth: $userAuth) {
+    mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!, $lastEdited: String!) {
+        addTodo(id: $id, newMessage: $newMessage, userAuth: $userAuth, lastEdited: $lastEdited) {
             id
             message
+            userAuth
+            lastEdited
         }
     }
 `
@@ -35,8 +37,9 @@ const UPDATE_TODO = gql`
         $id: Int!
         $updateMessage: String!
         $userAuth: String!
+        $lastEdited: String!
     ) {
-        updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth)
+        updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth, lastEdited: $lastEdited)
     }
 `
 
@@ -66,6 +69,8 @@ const GET_TODO = gql`
         todo(id: $id) {
             id
             message
+            userAuth
+            lastEdited
         }
     }
 `
@@ -75,6 +80,8 @@ const GET_TODOS = gql`
         todos(FILTER_MODE: $FILTER_MODE, skip: $skip, limit: $limit) {
             id
             message
+            userAuth
+            lastEdited
         }
     }
 `
@@ -137,6 +144,7 @@ async function addMultipleTodos(times, testClientQuery, jwtToken) {
                 id: i,
                 newMessage: 'newentry' + i,
                 userAuth: jwtToken,
+                lastEdited: new Date().toLocaleString()
             },
         })
     }
@@ -157,7 +165,7 @@ describe('Test todo with Neo4J Database interactions', () => {
 
         await query({
             query: ADD_TODO,
-            variables: { id: 10, newMessage: 'newentry', userAuth: testUser },
+            variables: { id: 10, newMessage: 'newentry', userAuth: testUser, lastEdited: new Date().toLocaleString() },
         })
 
         const res = await query({
@@ -182,6 +190,7 @@ describe('Test todo with Neo4J Database interactions', () => {
                 id: 2,
                 updateMessage: 'newmessage',
                 userAuth: testUser,
+                lastEdited: new Date().toLocaleString()
             },
         })
 
@@ -272,7 +281,7 @@ describe('Test todo with Neo4J Database interactions', () => {
         const testUser = createJwt('secret')
 
         let toBeDeleted = [
-            { id: 9999, newMessage: 'newentry', userAuth: testUser },
+            { id: 9999, newMessage: 'newentry', userAuth: testUser, lastEdited: new Date().toLocaleString() },
         ]
 
         await query({

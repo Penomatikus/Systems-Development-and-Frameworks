@@ -52,8 +52,8 @@ export class TodoAPI extends DataSource {
    return this.store.splice( this.store.indexOf({id: id}), 1 );
   }
 
-  addTodo(todo, userAuth) {
-   return this.store.push({id: todo.id, message: todo.message, userAuth: userAuth})
+  addTodo(todo, userAuth, lastEdited) {
+   return this.store.push({id: todo.id, message: todo.message, userAuth: userAuth, lastEdited: lastEdited})
   }
 
   updateTodo(id, newmessage){

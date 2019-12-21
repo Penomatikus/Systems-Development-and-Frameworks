@@ -4,6 +4,8 @@ scalar JSON
 type ToDo {
     id: Int!
     message: String!
+    userAuth: String!
+    lastEdited: String!
 }
 
 type Query {
@@ -20,9 +22,9 @@ type Query {
 type Mutation {
     myMutation: String!
     "Add a message and publish it on todos'"
-    addTodo(id: Int!, newMessage: String!, userAuth: String!): ToDo!
+    addTodo(id: Int!, newMessage: String!, userAuth: String!, lastEdited: String!): ToDo!
     "Updates a todo with the given ID"
-    updateTodo(id: Int!, updateMessage: String!, userAuth: String!): String!
+    updateTodo(id: Int!, updateMessage: String!, userAuth: String!, lastEdited: String!): String!
     "Delets a todo with the given ID"
     deleteTodo(id: Int!, userAuth: String!): String!
     "Add dependency"
