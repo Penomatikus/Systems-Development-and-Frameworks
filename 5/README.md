@@ -41,6 +41,10 @@ https://neo4j.com/docs/ogm-manual/current/introduction/
 to run the test you have to turn off the server (test starts its own, otherwise the port is blocked)
 
 
+
+
+
+
 # Exercise \#5
 
 Learn how to use graphql-middlewares and start programming with NuxtJS.
@@ -52,17 +56,16 @@ Learn how to use graphql-middlewares and start programming with NuxtJS.
    and [graphql-middleware](https://github.com/prisma-labs/graphql-middleware).
    Here is some inspiration how your test cases could look like:
    ![Test cases for a permission layer](../3/permissions.png)
-- [] 2. Refactor your backend and frontend to show something different than just
+- [x] 2. Refactor your backend and frontend to show something different than just
    todos and users. Be creative.
-- [] 3. Do a remote pair-programming session. You can choose any pairing partner,
+- [x] 3. Do a remote pair-programming session. You can choose any pairing partner,
    either from our course or you can also ask our open-source community.
-- [] 4. Record your pair-programming session and publish it. Choose any software you
+- [x] 4. Record your pair-programming session and publish it. Choose any software you
    want. If you don't like being on the web, disable your webcam and save the
    video as "unlisted". I recommend [PeerTube](https://joinpeertube.org/) to
    host the video but there is also this commercial platform called YouTube as
    an alternative. Send a link to your recorded video to htw@roschaefer.de.
-- [] 5. Write backend and frontend tests. Mock `this.$apollo` in your frontend tests
-   and respond with some mocked data or simulate an error.
+- [x] 5. Write backend tests.
 - [] 6. Request a review from @roschaefer.
 - [] 7. Request a review from sb. else.
 
@@ -90,6 +93,7 @@ help out: https://human-connection.org/discord
    to the backend.
 3. Make use of apollo-module's [authentication helpers](https://github.com/nuxt-community/apollo-module#authentication)
    and have at least one page component which requires authentication.
+4. Write frontend tests, mock `this.$apollo` and respond with some mocked data or simulate an error.
 
 
 If you copy code from other groups, please give credit to them in your commit
