@@ -12,7 +12,6 @@ import { applyMiddleware } from 'graphql-middleware'
 import { makeExecutableSchema } from 'graphql-tools'
 import { rule, shield, and, or, not } from 'graphql-shield'
 
-
 var neo4j = require('neo4j-driver')
 const { ApolloServer, gql } = require('apollo-server')
 const { createTestClient } = require('apollo-server-testing')
@@ -32,7 +31,11 @@ const ADD_TODO = gql`
 `
 
 const UPDATE_TODO = gql`
-    mutation updateTodo($id: Int!, $updateMessage: String!, $userAuth: String!) {
+    mutation updateTodo(
+        $id: Int!
+        $updateMessage: String!
+        $userAuth: String!
+    ) {
         updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth)
     }
 `
@@ -45,7 +48,7 @@ const ADD_DEPENDENCY = gql`
 
 const GET_DEPENDENCIES = gql`
     query getToDoDependencies($id: Int!) {
-        getToDoDependencies(id: $id){
+        getToDoDependencies(id: $id) {
             id
             message
         }
@@ -93,24 +96,23 @@ function createNewDriver() {
 }
 
 function createNewServer(driver) {
-    
     const schema = makeExecutableSchema({ typeDefs, resolvers })
-    
+
     const isAuthenticated = rule({ cache: 'contextual' })(
         async (parent, args, ctx, info) => {
             const todo = await ctx.dataSources.ds.findTodo(args.id)
-          return (typeof todo !=='undefined' && args.userAuth == todo.userAuth)
-        },
-      )
+            return typeof todo !== 'undefined' && args.userAuth == todo.userAuth
+        }
+    )
 
     const permissions = shield({
         Mutation: {
-          updateTodo: isAuthenticated,
-          deleteTodo: isAuthenticated,
-          //addTodo: or (isAuthenticated, not (isAuthenticated))
-        }
+            updateTodo: isAuthenticated,
+            deleteTodo: isAuthenticated,
+            //addTodo: or (isAuthenticated, not (isAuthenticated))
+        },
     })
-    
+
     return new ApolloServer({
         //typeDefs,
         schema: schema,
@@ -176,7 +178,11 @@ describe('Test todo with Neo4J Database interactions', () => {
         await addMultipleTodos(5, query, testUser)
         await query({
             query: UPDATE_TODO,
-            variables: { id: 2, updateMessage: 'newmessage', userAuth: testUser },
+            variables: {
+                id: 2,
+                updateMessage: 'newmessage',
+                userAuth: testUser,
+            },
         })
 
         const res = await query({
@@ -253,7 +259,7 @@ describe('Test todo with Neo4J Database interactions', () => {
         let todos = res.data.todos
 
         expect(todos.length).toEqual(10)
-        
+
         for (let i = 0; i < todos.length - 1; i++) {
             expect(todos[i].id <= todos[i + 1].id).toEqual(true)
         }
@@ -278,7 +284,7 @@ describe('Test todo with Neo4J Database interactions', () => {
             query: DELETE_TODO,
             variables: {
                 id: 9999,
-                userAuth: testUser
+                userAuth: testUser,
             },
         })
 
