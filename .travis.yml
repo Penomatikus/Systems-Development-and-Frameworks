@@ -14,6 +14,6 @@ branches:
   only:
   - build/spammy
   - build/ex3
-
+  - build/ex5
 
 
