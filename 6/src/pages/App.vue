@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import List from './components/List.vue'
+import List from '../components/List.vue'
 import gql from 'graphql-tag'
 
 export default {
