@@ -13,7 +13,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "nuxt": "^2.0.0"
+    "@nuxtjs/apollo": "^4.0.0-rc19",
+    "graphql-tag": "^2.10.1",
+    "nuxt": "^2.0.0",
+    "vue": "^2.6.6",
+    "vue-server-renderer": "^2.6.11",
+    "vue-template-compiler": "^2.6.6",
+    "apollo-boost": "^0.4.7"
   },
   "devDependencies": {
     "@nuxtjs/eslint-config": "^1.0.1",

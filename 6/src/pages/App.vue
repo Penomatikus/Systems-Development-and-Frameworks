@@ -44,15 +44,30 @@ export default {
             ],
         }
     },
-    apollo: {
-        GET_TODO: gql`
-            query todo($id: Int!) {
-                todo(id: $id) {
-                    id
-                    message
-                }
+    async asyncData (context) {
+        let client = context.app.apolloProvider.defaultClient
+        let querydata = {}
+        await client.query({
+            query: gql`
+            query todos($FILTER_MODE: String!, $skip: Int, $limit: Int) {
+            todos(FILTER_MODE: $FILTER_MODE, skip: $skip, limit: $limit) {
+            id
+            message
+            userAuth
+            lastEdited
+        }
+    }`,
+    variables: {
+                FILTER_MODE: "asc",
+                limit: 10,
+            },
+        }).then(
+            ( qresult ) => {
+               querydata = qresult.data.todos
             }
-        `,
+        )
+        console.log("vor return: " + querydata)
+        return {todos:querydata}
     },
     methods: {
         newTodo: function() {
