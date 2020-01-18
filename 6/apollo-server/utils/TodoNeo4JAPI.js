@@ -1,3 +1,5 @@
+import { createJwt } from './jwtCreator'
+
 const { DataSource } = require('apollo-datasource')
 
 // function searchelement(mok, id) {
@@ -9,11 +11,11 @@ const { DataSource } = require('apollo-datasource')
 //   return "findTodo: element not found";
 // }
 
-function filterTodos(mok, userAuth) {
+function filterTodos(mok, username) {
     var retArray = []
 
     for (var i = 0; i < mok.length; i++) {
-        if (mok[i].userAuth == userAuth) {
+        if (mok[i].username == username) {
             retArray.push(mok[i])
         }
     }
@@ -44,7 +46,7 @@ export class TodoNeo4JAPI extends DataSource {
         return {
             id: foundNode.properties.id.low,
             message: foundNode.properties.message,
-            userAuth: foundNode.properties.userAuth,
+            username: foundNode.properties.username,
         }
     }
 
@@ -150,8 +152,8 @@ export class TodoNeo4JAPI extends DataSource {
         return allTodos
     }
 
-    getTodosForUser(userAuth) {
-        return filterTodos(this.store, userAuth)
+    getTodosForUser(username) {
+        return filterTodos(this.store, username)
     }
 
     async deleteTodo(id) {
@@ -186,12 +188,38 @@ export class TodoNeo4JAPI extends DataSource {
         }
     }
 
-    async userExists(userAuth) {
+    async getUser(username) {
+        if ((await this.userExists(username)) == false) {
+            return undefined
+        }
+        const driver = this.store
+        const session = driver.session()
+        let user = undefined
+        
+
+        const cypher = `match (n:User {username: '${username}'}) return n`
+        try {
+            await session.run(cypher).then(result => {
+                const node = result.records[0].get('n')
+                user = { username: node.properties.username, pw: node.properties.pw}
+                console.log(user)
+
+            })
+        } catch (error) {
+            console.log('ERROR in getUser(): ' + error)
+        } finally {
+            session.close()
+        }
+        console.log("user before return: " + user.username)
+        return user
+    }
+
+    async userExists(username) {
         const driver = this.store
         const session = driver.session()
         let exists = false
 
-        const cypher = `match (n:User {userAuth: '${userAuth}'}) return n`
+        const cypher = `match (n:User {username: '${username}'}) return n`
         try {
             await session.run(cypher).then(result => {
                 const nodecount = result.records.length
@@ -207,11 +235,14 @@ export class TodoNeo4JAPI extends DataSource {
         return exists
     }
 
-    async addUser(userAuth) {
+    async addUser(username, pw) {
+        if ((await this.userExists(username)) == true) {
+            return 
+        }
         const driver = this.store
         const session = driver.session()
 
-        const cypher = `CREATE (n:User { userAuth: '${userAuth}' })`
+        const cypher = `CREATE (n:User { username: '${username}', pw: '${pw}' })`
         try {
             await session.run(cypher).catch(e => {
                 console.log(e)
@@ -223,14 +254,14 @@ export class TodoNeo4JAPI extends DataSource {
         }
     }
 
-    async addTodo(todo, userAuth, lastEdited) {
+    async addTodo(todo, username, lastEdited) {
         const driver = this.store
-        if ((await this.userExists(userAuth)) == false) {
-            await this.addUser(userAuth)
+        if ((await this.userExists(username)) == false) {
+            return 
         }
 
         const session = driver.session()
-        const cypher = `CREATE (n:Todo { id: ${todo.id}, message: '${todo.message}', userAuth: '${userAuth}', lastEdited: '${lastEdited}' })`
+        const cypher = `CREATE (n:Todo { id: ${todo.id}, message: '${todo.message}', username: '${username}', lastEdited: '${lastEdited}' })`
         try {
             await session.run(cypher).catch(e => {
                 console.log(e)

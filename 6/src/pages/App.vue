@@ -1,16 +1,24 @@
 <template>
     <div id="app">
-        <p>Username:</p>
-        <input type="text" v-model="username" id="userMock" value="userMock" />
-        <br />
-        <br />
-        <list v-bind:todos="todos" @update-todo="updateTodo" @delete-todo="deleteTodo"></list>
-        <button v-on:click="newTodo" type="button">Add todo</button>
+        <div v-if="isLoggedIn == true">
+            <p>Username:</p>
+            <input type="text" v-model="credentials.username" id="userMock" value="userMock" />
+            <br />
+            <br />
+            <list v-bind:todos="todos" @update-todo="updateTodo" @delete-todo="deleteTodo"></list>
+            <button v-on:click="newTodo" type="button">Add todo</button>
+        </div>
+       <div v-else>
+           <input type="text" v-model="credentials.username" id="login" value="" />
+           <input type="password" v-model="credentials.pw" id="login" value="" />
+           <button v-on:click="onSubmit()" type="button" id="login">Login</button>
+       </div>
     </div>
 </template>
 
 <script>
 import List from '../components/List.vue'
+import { createJwt } from '../../apollo-server/utils/jwtCreator'
 
 import {
     ADD_TODO,
@@ -20,6 +28,7 @@ import {
     DELETE_TODO,
     GET_TODO,
     GET_TODOS,
+    AUTHENTICATE,
 } from '../../apollo-server/graphqlRequests'
 
 export default {
@@ -29,25 +38,29 @@ export default {
     },
     data: () => {
         return {
-            username: 'dummy',
+            credentials: {
+            username: 'anon',
+            pw: '1234'
+            },
+            isLoggedIn: false,
             lastId: 3,
             todos: [
                 {
                     id: '1',
                     message: 'Foo',
-                    user: 'fakeUser_1',
+                    username: 'fakeUser_1',
                     lastEdited: 'autogen.',
                 },
                 {
                     id: '2',
                     message: 'Bar',
-                    user: 'fakeUser_2',
+                    username: 'fakeUser_2',
                     lastEdited: 'autogen.',
                 },
                 {
                     id: '3',
                     message: 'Baz',
-                    user: 'fakeUser_3',
+                    username: 'fakeUser_3',
                     lastEdited: 'autogen.',
                 },
             ],
@@ -71,21 +84,43 @@ export default {
         return {todos:querydata}
     },
     methods: {
-        async newTodo() {
-          console.log("in newTODO: ")
-          let client = context.app.apolloProvider.defaultClient
-          await client.query({
-              query: ADD_TODO,
+        async onSubmit () {
+            console.log("In OnSubmit")
+        const credentials = this.credentials
+        try {
+        const res = await this.$apollo.mutate({
+            mutation: AUTHENTICATE,
+            variables: {Credentials: this.credentials}
+        }).then(({data}) => data )
+        console.log("res: " + res.authenticate)
+        if (res.authenticate === "" || !res.authenticate){
+            console.error("auth failed: no valid token")
+            return
+        }
+        
+        
+        await this.$apolloHelpers.onLogin(res.authenticate)
+         this.isLoggedIn = true
+         } catch (e) {
+            console.error(e)
+        }
+        },
+        newTodo: async function() {
+          const testUser = createJwt('secret')
+          const client = this.$apollo.getClient()
+          await this.$apollo.mutate({
+              mutation: ADD_TODO,
           variables: {
               id: this.lastId,
-              //    message: 'new todo',
-              //    user: this.username,
-              //    lastEdited: new Date().toLocaleString(),
+              newMessage: 'new todo',
+              loginData: {username: this.credentials.username, token: this.$apolloHelpers.getToken()},
+              lastEdited: new Date().toLocaleString(),
               },
           })
+          console.log("in newTODO: ")
 
             //console.log(this.username)
-            //this.lastId++
+            this.lastId++
             //this.todos.push({
             //    id: this.lastId,
             //    message: 'new todo',
@@ -96,14 +131,14 @@ export default {
         },
         async updateTodo(passedTodo) {
             console.log("in updateTODO: ")
-            let client = context.app.apolloProvider.defaultClient
-            await client.query({
-                query: UPDATE_TODO,
+            const client = this.$apollo.getClient()
+            await this.$apollo.mutate({
+                mutation: UPDATE_TODO,
             variables: {
-                id: passedTodo.id,
-                message: passedTodo.message,
-                user: passedTodo.user,
-                lastEdited: new Date().toLocaleString(),
+              id: passedTodo.id,
+              updateMessage: passedTodo.message,
+              loginData: {username: this.credentials.username, token: this.$apolloHelpers.getToken()},
+              lastEdited: new Date().toLocaleString()
                 },
             })
             // console.log("(Großeltern) \nIch erhielt die todo [" + passedTodo.id + " | " + passedTodo.message + "] via $emit ")

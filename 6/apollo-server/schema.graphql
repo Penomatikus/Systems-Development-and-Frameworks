@@ -4,8 +4,17 @@ scalar JSON
 type ToDo {
     id: Int!
     message: String!
-    userAuth: String!
+    username: String!
     lastEdited: String!
+}
+
+input Credentials {
+    username: String!
+    pw: String!
+}
+input LoginData {
+    username: String!
+    token: String!
 }
 
 type Query {
@@ -13,7 +22,7 @@ type Query {
     hello(name: String): String!
     "List of todos in the db"
     todos(FILTER_MODE: String!, skip: Int = -1, limit: Int = -1): [ToDo]
-    todosForUser(userAuth: String!): [ToDo]
+    todosForUser(loginData: LoginData!): [ToDo]
     "One Todo query for testing"
     todo(id: Int!): ToDo
     getToDoDependencies(id: Int!): [ToDo]
@@ -22,13 +31,14 @@ type Query {
 type Mutation {
     myMutation: String!
     "Add a message and publish it on todos'"
-    addTodo(id: Int!, newMessage: String!, userAuth: String!, lastEdited: String!): ToDo!
+    addTodo(id: Int!, newMessage: String!, loginData: LoginData!, lastEdited: String!): ToDo!
     "Updates a todo with the given ID"
-    updateTodo(id: Int!, updateMessage: String!, userAuth: String!, lastEdited: String!): String!
+    updateTodo(id: Int!, updateMessage: String!, loginData: LoginData!, lastEdited: String!): String!
     "Delets a todo with the given ID"
-    deleteTodo(id: Int!, userAuth: String!): String!
+    deleteTodo(id: Int!, loginData: LoginData!): String!
     "Add dependency"
     addToDoDependency(id: Int!, dependencyId: Int!): Boolean
+    authenticate(Credentials: Credentials!): String!
 }
 
 "Input from user to create a todo"

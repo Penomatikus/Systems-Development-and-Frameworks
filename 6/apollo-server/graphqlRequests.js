@@ -1,11 +1,11 @@
 import gql from 'graphql-tag'
 
 export const ADD_TODO = gql`
-    mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!, $lastEdited: String!) {
-        addTodo(id: $id, newMessage: $newMessage, userAuth: $userAuth, lastEdited: $lastEdited) {
+    mutation addTodo($id: Int!, $newMessage: String!, $loginData: LoginData!, $lastEdited: String!) {
+        addTodo(id: $id, newMessage: $newMessage, loginData: $loginData, lastEdited: $lastEdited) {
             id
             message
-            userAuth
+            username
             lastEdited
         }
     }
@@ -15,10 +15,10 @@ export const UPDATE_TODO = gql`
     mutation updateTodo(
         $id: Int!
         $updateMessage: String!
-        $userAuth: String!
+        $loginData: LoginData!
         $lastEdited: String!
     ) {
-        updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth, lastEdited: $lastEdited)
+        updateTodo(id: $id, updateMessage: $updateMessage, loginData: $loginData, lastEdited: $lastEdited)
     }
 `
 
@@ -38,8 +38,8 @@ export const GET_DEPENDENCIES = gql`
 `
 
 export const DELETE_TODO = gql`
-    mutation deleteTodo($id: Int!, $userAuth: String!) {
-        deleteTodo(id: $id, userAuth: $userAuth)
+    mutation deleteTodo($id: Int!, $loginData: LoginData!) {
+        deleteTodo(id: $id, loginData: $loginData)
     }
 `
 
@@ -48,7 +48,7 @@ export const GET_TODO = gql`
         todo(id: $id) {
             id
             message
-            userAuth
+            username
             lastEdited
         }
     }
@@ -59,8 +59,14 @@ export const GET_TODOS = gql`
         todos(FILTER_MODE: $FILTER_MODE, skip: $skip, limit: $limit) {
             id
             message
-            userAuth
+            username
             lastEdited
         }
+    }
+`
+
+export const AUTHENTICATE = gql`
+    mutation authenticate($Credentials: Credentials!) {
+        authenticate(Credentials: $Credentials)
     }
 `
