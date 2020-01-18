@@ -11,7 +11,16 @@
 
 <script>
 import List from '../components/List.vue'
-import gql from 'graphql-tag'
+
+import {
+    ADD_TODO,
+    UPDATE_TODO,
+    ADD_DEPENDENCY,
+    GET_DEPENDENCIES,
+    DELETE_TODO,
+    GET_TODO,
+    GET_TODOS,
+} from '../../apollo-server/graphqlRequests'
 
 export default {
     name: 'app',
@@ -48,15 +57,7 @@ export default {
         let client = context.app.apolloProvider.defaultClient
         let querydata = {}
         await client.query({
-            query: gql`
-            query todos($FILTER_MODE: String!, $skip: Int, $limit: Int) {
-            todos(FILTER_MODE: $FILTER_MODE, skip: $skip, limit: $limit) {
-            id
-            message
-            userAuth
-            lastEdited
-        }
-    }`,
+            query: GET_TODOS,
     variables: {
                 FILTER_MODE: "asc",
                 limit: 10,
@@ -73,15 +74,7 @@ export default {
         newTodo: function() {
           let client = context.app.apolloProvider.defaultClient
           await client.query({
-              query: gql`
-              mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!, $lastEdited: String!) {
-                  addTodo(id: $id, newMessage: $newMessage, userAuth: $userAuth, lastEdited: $lastEdited) {
-                      id
-                      message
-                      userAuth
-                      lastEdited
-                  }
-              }`,
+              query: ADD_TODO,
           variables: {
               id: this.lastId,
               //    message: 'new todo',
@@ -103,15 +96,7 @@ export default {
         updateTodo: function(passedTodo) {
             let client = context.app.apolloProvider.defaultClient
             await client.query({
-                query: gql`
-                mutation updateTodo(
-                    $id: Int!
-                    $updateMessage: String!
-                    $userAuth: String!
-                    $lastEdited: String!
-                ) {
-                    updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth, lastEdited: $lastEdited)
-                }`,
+                query: UPDATE_TODO,
             variables: {
                 id: passedTodo.id,
                 message: passedTodo.message,

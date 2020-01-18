@@ -3,6 +3,16 @@ import {
     TodoNeo4JAPI,
 } from '../../apollo-server/utils/TodoNeo4JAPI'
 
+import {
+    ADD_TODO,
+    UPDATE_TODO,
+    ADD_DEPENDENCY,
+    GET_DEPENDENCIES,
+    DELETE_TODO,
+    GET_TODO,
+    GET_TODOS,
+} from '../../apollo-server/graphqlRequests'
+
 import { createJwt } from '../../apollo-server/utils/jwtCreator'
 import fs from 'fs'
 import path from 'path'
@@ -20,71 +30,6 @@ const typeDefs = fs.readFileSync(
     path.resolve(__dirname, '../../apollo-server/schema.graphql'),
     { encoding: 'utf8' }
 )
-
-const ADD_TODO = gql`
-    mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!, $lastEdited: String!) {
-        addTodo(id: $id, newMessage: $newMessage, userAuth: $userAuth, lastEdited: $lastEdited) {
-            id
-            message
-            userAuth
-            lastEdited
-        }
-    }
-`
-
-const UPDATE_TODO = gql`
-    mutation updateTodo(
-        $id: Int!
-        $updateMessage: String!
-        $userAuth: String!
-        $lastEdited: String!
-    ) {
-        updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth, lastEdited: $lastEdited)
-    }
-`
-
-const ADD_DEPENDENCY = gql`
-    mutation addToDoDependency($id: Int!, $dependencyId: Int!) {
-        addToDoDependency(id: $id, dependencyId: $dependencyId)
-    }
-`
-
-const GET_DEPENDENCIES = gql`
-    query getToDoDependencies($id: Int!) {
-        getToDoDependencies(id: $id) {
-            id
-            message
-        }
-    }
-`
-
-const DELETE_TODO = gql`
-    mutation deleteTodo($id: Int!, $userAuth: String!) {
-        deleteTodo(id: $id, userAuth: $userAuth)
-    }
-`
-
-const GET_TODO = gql`
-    query todo($id: Int!) {
-        todo(id: $id) {
-            id
-            message
-            userAuth
-            lastEdited
-        }
-    }
-`
-
-const GET_TODOS = gql`
-    query todos($FILTER_MODE: String!, $skip: Int!, $limit: Int!) {
-        todos(FILTER_MODE: $FILTER_MODE, skip: $skip, limit: $limit) {
-            id
-            message
-            userAuth
-            lastEdited
-        }
-    }
-`
 
 // const GET_TODOS_FOR_USER = gql`
 //   query todosForUser($userAuth: String!) {
