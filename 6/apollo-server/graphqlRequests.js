@@ -55,7 +55,7 @@ export const GET_TODO = gql`
 `
 
 export const GET_TODOS = gql`
-    query todos($FILTER_MODE: String!, $skip: Int!, $limit: Int!) {
+    query todos($FILTER_MODE: String!, $skip: Int, $limit: Int) {
         todos(FILTER_MODE: $FILTER_MODE, skip: $skip, limit: $limit) {
             id
             message

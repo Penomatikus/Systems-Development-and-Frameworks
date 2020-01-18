@@ -71,7 +71,8 @@ export default {
         return {todos:querydata}
     },
     methods: {
-        newTodo: function() {
+        async newTodo() {
+          console.log("in newTODO: ")
           let client = context.app.apolloProvider.defaultClient
           await client.query({
               query: ADD_TODO,
@@ -93,7 +94,8 @@ export default {
             //})
             // console.log("New Todo: [" + this.lastId + "]")
         },
-        updateTodo: function(passedTodo) {
+        async updateTodo(passedTodo) {
+            console.log("in updateTODO: ")
             let client = context.app.apolloProvider.defaultClient
             await client.query({
                 query: UPDATE_TODO,
