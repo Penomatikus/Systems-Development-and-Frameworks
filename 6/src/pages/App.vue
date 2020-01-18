@@ -71,23 +71,60 @@ export default {
     },
     methods: {
         newTodo: function() {
-            console.log(this.username)
-            this.lastId++
-            this.todos.push({
-                id: this.lastId,
-                message: 'new todo',
-                user: this.username,
-                lastEdited: new Date().toLocaleString(),
-            })
+          let client = context.app.apolloProvider.defaultClient
+          await client.query({
+              query: gql`
+              mutation addTodo($id: Int!, $newMessage: String!, $userAuth: String!, $lastEdited: String!) {
+                  addTodo(id: $id, newMessage: $newMessage, userAuth: $userAuth, lastEdited: $lastEdited) {
+                      id
+                      message
+                      userAuth
+                      lastEdited
+                  }
+              }`,
+          variables: {
+              id: this.lastId,
+              //    message: 'new todo',
+              //    user: this.username,
+              //    lastEdited: new Date().toLocaleString(),
+              },
+          })
+
+            //console.log(this.username)
+            //this.lastId++
+            //this.todos.push({
+            //    id: this.lastId,
+            //    message: 'new todo',
+            //    user: this.username,
+            //    lastEdited: new Date().toLocaleString(),
+            //})
             // console.log("New Todo: [" + this.lastId + "]")
         },
         updateTodo: function(passedTodo) {
+            let client = context.app.apolloProvider.defaultClient
+            await client.query({
+                query: gql`
+                mutation updateTodo(
+                    $id: Int!
+                    $updateMessage: String!
+                    $userAuth: String!
+                    $lastEdited: String!
+                ) {
+                    updateTodo(id: $id, updateMessage: $updateMessage, userAuth: $userAuth, lastEdited: $lastEdited)
+                }`,
+            variables: {
+                id: passedTodo.id,
+                message: passedTodo.message,
+                user: passedTodo.user,
+                lastEdited: new Date().toLocaleString(),
+                },
+            })
             // console.log("(Großeltern) \nIch erhielt die todo [" + passedTodo.id + " | " + passedTodo.message + "] via $emit ")
             // console.log("(Großeltern) \nFinde den entsprechenden index passend zur ID(" + passedTodo.id +") in todos[]")
-            let index = this.todos.findIndex(todo => todo.id == passedTodo.id)
+            //let index = this.todos.findIndex(todo => todo.id == passedTodo.id)
             // console.log("(Großeltern) \nUpdate das entsprechend gefundene Objekt in todos[]")
-            this.todos[index] = passedTodo
-            this.todos[index].lastEdited = new Date().toLocaleString()
+            //this.todos[index] = passedTodo
+            //this.todos[index].lastEdited = new Date().toLocaleString()
             // console.log("(Großeltern)\nTodo wurde geupdated: [" + this.todos[index].id + " | " + this.todos[index].message +"]")
         },
         deleteTodo: function(id) {
