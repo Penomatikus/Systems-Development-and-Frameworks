@@ -74,9 +74,11 @@ export default {
          },
         updateTodo: async (root, { id, updateMessage, loginData, lastEdited }, { dataSources }) => {
             console.log("Update Todo")
-            await dataSources.ds.updateTodo(id, updateMessage, lastEdited)
-
-            return `todo with ID: ${id} was updated to ${updateMessage}`
+            const user = await dataSources.ds.getUser(loginData.username)
+            if (decodeJwt(loginData.token, user.pw)) {
+                await dataSources.ds.updateTodo(id, updateMessage, lastEdited)
+                return `todo with ID: ${id} was updated to ${updateMessage}`
+            }
         },
 
         addToDoDependency: async (
@@ -87,9 +89,15 @@ export default {
             await dataSources.ds.addToDoDependency(id, dependencyId)
         },
 
-        deleteTodo: (root, { id }, { dataSources }) => {
-            dataSources.ds.deleteTodo(id)
-            return `todo with ID ${id} was deleted`
+        deleteTodo: async (root, { id, loginData }, { dataSources }) => {
+            const user = await dataSources.ds.getUser(loginData.username)
+            if (decodeJwt(loginData.token, user.pw)) {
+                await dataSources.ds.deleteTodo(id)                
+                return `todo with ID ${id} was deleted`
+            }
+            console.log("permission denied")
+            return undefined
+          
         },
     },
 }

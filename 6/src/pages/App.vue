@@ -95,14 +95,13 @@ export default {
         console.log("res: " + res.authenticate)
         if (res.authenticate === "" || !res.authenticate){
             console.error("auth failed: no valid token")
+            this.$nuxt.error({statusCode:403, message:'403: You are not allowed to see this'})
             return
         }
-        
-        
         await this.$apolloHelpers.onLogin(res.authenticate)
          this.isLoggedIn = true
          } catch (e) {
-            console.error(e)
+            this.$nuxt.error({statusCode:403, message:'403: You are not allowed to see this'})
         }
         },
         newTodo: async function() {
@@ -149,10 +148,18 @@ export default {
             //this.todos[index].lastEdited = new Date().toLocaleString()
             // console.log("(Großeltern)\nTodo wurde geupdated: [" + this.todos[index].id + " | " + this.todos[index].message +"]")
         },
-        deleteTodo: function(id) {
+        deleteTodo: async function(id) {
+            const client = this.$apollo.getClient()
+            await this.$apollo.mutate({
+                mutation: DELETE_TODO,
+                variables: {
+                id: id,
+                loginData: {username: this.credentials.username, token: this.$apolloHelpers.getToken()}
+                },
+            })
             // console.log("(Großeltern) Finde den entsprechenden index passend zur ID(" + id +") in todos[]")'
-            let index = this.todos.findIndex(todo => todo.id == id)
-            this.$delete(this.todos, index)
+            //let index = this.todos.findIndex(todo => todo.id == id)
+            //this.$delete(this.todos, index)
             // console.log("(Großeltern)\nIch habe das Todo mit der folgenden ID gelöscht: " + id)
         },
     },

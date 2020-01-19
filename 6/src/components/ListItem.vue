@@ -39,6 +39,7 @@ export default {
         return {
             editMode: false,
             newMessage: '',
+            editMessage: ""
         }
     },
     methods: {
@@ -46,8 +47,12 @@ export default {
             this.editMode = true
         },
         saveMe: function(todo) {
-            this.todo.message = this.newMessage
-            this.$emit('update-todo', todo)
+            this.$emit('update-todo', {            
+                    id: todo.id,    
+                    message: this.newMessage,
+                    username: todo.username,
+                    lastEdited: todo.lastEdited,
+            })
             this.editMode = false
         },
         deleteMe: function(todo) {
