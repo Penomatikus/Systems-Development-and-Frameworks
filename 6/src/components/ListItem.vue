@@ -12,7 +12,7 @@
                 <button v-on:click="saveMe(todo)" type="button" id="save">Save</button>
                 <button v-on:click="cancelMe" type="button" id="cancel">Cancel</button>
                 <label for="input">
-                    ( From: {{ todo.user }}
+                    ( From: {{ todo.username }}
                     <i>Last edited: {{ todo.lastEdited }}</i> )
                 </label>
             </li>
@@ -24,7 +24,7 @@
                     id="edit"
                 >Edit</button>
                 <button v-on:click="deleteMe(todo)" type="button" id="delete">Delete</button>
-                ( From: {{ todo.user }}
+                ( From: {{ todo.username }}
                 <i>Last edited: {{ todo.lastEdited }}</i> )
             </li>
         </form>
@@ -39,6 +39,7 @@ export default {
         return {
             editMode: false,
             newMessage: '',
+            editMessage: ""
         }
     },
     methods: {
@@ -46,8 +47,12 @@ export default {
             this.editMode = true
         },
         saveMe: function(todo) {
-            this.todo.message = this.newMessage
-            this.$emit('update-todo', todo)
+            this.$emit('update-todo', {            
+                    id: todo.id,    
+                    message: this.newMessage,
+                    username: todo.username,
+                    lastEdited: todo.lastEdited,
+            })
             this.editMode = false
         },
         deleteMe: function(todo) {

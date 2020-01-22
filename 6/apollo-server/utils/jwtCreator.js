@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken"
 export function createJwt(secret) {
     try {
         return jwt.sign({
-            exp: Math.floor(Date.now() / 1000) + (60 * 60),
+            //exp: Math.floor(Date.now() / 1000) + (60 * 60),
             data: 'foobar'
           }, secret);
     } catch (error) {
